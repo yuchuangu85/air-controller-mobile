@@ -46,7 +46,7 @@ class PermissionManagerImpl(private val activity: Activity) : PermissionManager 
             activity,
             activity.getString(R.string.rationale_get_accounts),
             requestCode,
-            "android.permission.GET_ACCOUNTS"
+            "android.permission.GET_ACCOUNTS",
         )
     }
 
@@ -55,7 +55,7 @@ class PermissionManagerImpl(private val activity: Activity) : PermissionManager 
             activity,
             activity.getString(R.string.rationale_read_contacts),
             requestCode,
-            "android.permission.READ_CONTACTS"
+            "android.permission.READ_CONTACTS",
         )
     }
 
@@ -64,7 +64,7 @@ class PermissionManagerImpl(private val activity: Activity) : PermissionManager 
             activity,
             activity.getString(R.string.rationale_write_contacts),
             requestCode,
-            "android.permission.WRITE_CONTACTS"
+            "android.permission.WRITE_CONTACTS",
         )
     }
 
@@ -73,7 +73,7 @@ class PermissionManagerImpl(private val activity: Activity) : PermissionManager 
             activity,
             activity.getString(R.string.rationale_read_install_packages),
             requestCode,
-            "android.permission.REQUEST_INSTALL_PACKAGES"
+            "android.permission.REQUEST_INSTALL_PACKAGES",
         )
     }
 
@@ -82,7 +82,7 @@ class PermissionManagerImpl(private val activity: Activity) : PermissionManager 
             activity,
             activity.getString(R.string.rationale_permissions),
             requestCode,
-            *permissions
+            *permissions,
         )
     }
 }

@@ -8,17 +8,17 @@ import com.youngfeng.android.assistant.server.entity.AlbumEntity
 import com.youngfeng.android.assistant.server.entity.ImageEntity
 
 object PhotoUtil {
-
     @JvmStatic
     fun getAllAlbums(context: Context): List<AlbumEntity> {
         val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-        val projections = arrayOf(
-            MediaStore.Images.ImageColumns._ID,
-            MediaStore.Images.ImageColumns.BUCKET_ID,
-            MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
-            MediaStore.Images.ImageColumns.DATA
-        )
+        val projections =
+            arrayOf(
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.BUCKET_ID,
+                MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.DATA,
+            )
 
         val orderBy = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC"
         val map = HashMap<String, AlbumEntity>()
@@ -37,30 +37,32 @@ object PhotoUtil {
                 do {
                     val bucketId = cursor.getString(bucketIdIndex)
 
-                    val album = map[bucketId] ?: let {
-                        val bucketName = cursor.getString(bucketNameIndex) ?: ""
-                        val coverImageId = cursor.getString(idIndex)
-                        val imageUri = cursor.getString(imageUriIndex)
+                    val album =
+                        map[bucketId] ?: let {
+                            val bucketName = cursor.getString(bucketNameIndex) ?: ""
+                            val coverImageId = cursor.getString(idIndex)
+                            val imageUri = cursor.getString(imageUriIndex)
 
-                        var path = ""
-                        if (!TextUtils.isEmpty(imageUri)) {
-                            val index = imageUri.lastIndexOf("/")
+                            var path = ""
+                            if (!TextUtils.isEmpty(imageUri)) {
+                                val index = imageUri.lastIndexOf("/")
 
-                            if (index != -1) {
-                                path = imageUri.substring(0, index)
+                                if (index != -1) {
+                                    path = imageUri.substring(0, index)
+                                }
                             }
+
+                            val album =
+                                AlbumEntity(
+                                    id = bucketId,
+                                    name = bucketName,
+                                    coverImageId = coverImageId,
+                                    path = path,
+                                )
+                            map[bucketId] = album
+
+                            album
                         }
-
-                        val album = AlbumEntity(
-                            id = bucketId,
-                            name = bucketName,
-                            coverImageId = coverImageId,
-                            path = path
-                        )
-                        map[bucketId] = album
-
-                        album
-                    }
 
                     album.photoNum++
                 } while (cursor.moveToNext())
@@ -74,18 +76,19 @@ object PhotoUtil {
     fun getAllImages(context: Context): List<ImageEntity> {
         val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-        val projections = arrayOf(
-            MediaStore.Images.ImageColumns._ID,
-            MediaStore.Images.ImageColumns.DATA,
-            MediaStore.Images.ImageColumns.DATE_MODIFIED,
-            MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
-            MediaStore.Images.ImageColumns.MIME_TYPE,
-            MediaStore.Images.ImageColumns.WIDTH,
-            MediaStore.Images.ImageColumns.HEIGHT,
-            MediaStore.Images.ImageColumns.DATE_TAKEN,
-            MediaStore.Images.ImageColumns.DISPLAY_NAME,
-            MediaStore.Images.ImageColumns.SIZE
-        )
+        val projections =
+            arrayOf(
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.DATA,
+                MediaStore.Images.ImageColumns.DATE_MODIFIED,
+                MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
+                MediaStore.Images.ImageColumns.MIME_TYPE,
+                MediaStore.Images.ImageColumns.WIDTH,
+                MediaStore.Images.ImageColumns.HEIGHT,
+                MediaStore.Images.ImageColumns.DATE_TAKEN,
+                MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.SIZE,
+            )
 
         val orderBy = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC"
 
@@ -116,7 +119,7 @@ object PhotoUtil {
                     val size = it.getLong(sizeIndex);
 
                     images.add(
-                        ImageEntity(id, mimeType, thumbnail, imageData, width, height, modifyDate, dateTaken, displayName, size)
+                        ImageEntity(id, mimeType, thumbnail, imageData, width, height, modifyDate, dateTaken, displayName, size),
                     )
                 } while (it.moveToNext())
             }
@@ -129,18 +132,19 @@ object PhotoUtil {
     fun getAlbumImages(context: Context): List<ImageEntity> {
         val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-        val projections = arrayOf(
-            MediaStore.Images.ImageColumns._ID,
-            MediaStore.Images.ImageColumns.DATA,
-            MediaStore.Images.ImageColumns.DATE_MODIFIED,
-            MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
-            MediaStore.Images.ImageColumns.MIME_TYPE,
-            MediaStore.Images.ImageColumns.WIDTH,
-            MediaStore.Images.ImageColumns.HEIGHT,
-            MediaStore.Images.ImageColumns.DATE_TAKEN,
-            MediaStore.Images.ImageColumns.DISPLAY_NAME,
-            MediaStore.Images.ImageColumns.SIZE
-        )
+        val projections =
+            arrayOf(
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.DATA,
+                MediaStore.Images.ImageColumns.DATE_MODIFIED,
+                MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
+                MediaStore.Images.ImageColumns.MIME_TYPE,
+                MediaStore.Images.ImageColumns.WIDTH,
+                MediaStore.Images.ImageColumns.HEIGHT,
+                MediaStore.Images.ImageColumns.DATE_TAKEN,
+                MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.SIZE,
+            )
 
         val orderBy = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC"
 
@@ -174,7 +178,7 @@ object PhotoUtil {
                     val size = it.getLong(sizeIndex);
 
                     images.add(
-                        ImageEntity(id, mimeType, thumbnail, imageData, width, height, modifyDate, dateTaken, displayName, size)
+                        ImageEntity(id, mimeType, thumbnail, imageData, width, height, modifyDate, dateTaken, displayName, size),
                     )
                 } while (it.moveToNext())
             }
@@ -186,18 +190,19 @@ object PhotoUtil {
     fun getImagesOfAlbum(context: Context, albumId: String): List<ImageEntity> {
         val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-        val projections = arrayOf(
-            MediaStore.Images.ImageColumns._ID,
-            MediaStore.Images.ImageColumns.DATA,
-            MediaStore.Images.ImageColumns.DATE_MODIFIED,
-            MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
-            MediaStore.Images.ImageColumns.MIME_TYPE,
-            MediaStore.Images.ImageColumns.WIDTH,
-            MediaStore.Images.ImageColumns.HEIGHT,
-            MediaStore.Images.ImageColumns.DATE_TAKEN,
-            MediaStore.Images.ImageColumns.DISPLAY_NAME,
-            MediaStore.Images.ImageColumns.SIZE
-        )
+        val projections =
+            arrayOf(
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.DATA,
+                MediaStore.Images.ImageColumns.DATE_MODIFIED,
+                MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
+                MediaStore.Images.ImageColumns.MIME_TYPE,
+                MediaStore.Images.ImageColumns.WIDTH,
+                MediaStore.Images.ImageColumns.HEIGHT,
+                MediaStore.Images.ImageColumns.DATE_TAKEN,
+                MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.SIZE,
+            )
 
         val orderBy = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC"
 
@@ -231,7 +236,7 @@ object PhotoUtil {
                     val size = it.getLong(sizeIndex);
 
                     images.add(
-                        ImageEntity(id, mimeType, thumbnail, imageData, width, height, modifyDate, dateTaken, displayName, size)
+                        ImageEntity(id, mimeType, thumbnail, imageData, width, height, modifyDate, dateTaken, displayName, size),
                     )
                 } while (it.moveToNext())
             }
@@ -243,18 +248,19 @@ object PhotoUtil {
     fun findImageByPath(context: Context, path: String): ImageEntity? {
         val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
-        val projections = arrayOf(
-            MediaStore.Images.ImageColumns._ID,
-            MediaStore.Images.ImageColumns.DATA,
-            MediaStore.Images.ImageColumns.DATE_MODIFIED,
-            MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
-            MediaStore.Images.ImageColumns.MIME_TYPE,
-            MediaStore.Images.ImageColumns.WIDTH,
-            MediaStore.Images.ImageColumns.HEIGHT,
-            MediaStore.Images.ImageColumns.DATE_TAKEN,
-            MediaStore.Images.ImageColumns.DISPLAY_NAME,
-            MediaStore.Images.ImageColumns.SIZE
-        )
+        val projections =
+            arrayOf(
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.DATA,
+                MediaStore.Images.ImageColumns.DATE_MODIFIED,
+                MediaStore.Images.ImageColumns.MINI_THUMB_MAGIC,
+                MediaStore.Images.ImageColumns.MIME_TYPE,
+                MediaStore.Images.ImageColumns.WIDTH,
+                MediaStore.Images.ImageColumns.HEIGHT,
+                MediaStore.Images.ImageColumns.DATE_TAKEN,
+                MediaStore.Images.ImageColumns.DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.SIZE,
+            )
 
         val orderBy = "${MediaStore.Images.ImageColumns.DATE_TAKEN} DESC"
 

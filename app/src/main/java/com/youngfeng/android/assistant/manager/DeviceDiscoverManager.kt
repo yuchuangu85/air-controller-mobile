@@ -81,7 +81,7 @@ class DeviceDiscoverManagerImpl : DeviceDiscoverManager {
                         sendBroadcastMsg()
                     }
                 },
-                0, 1000
+                0, 1000,
             )
 
             while (!isStarted) {
@@ -131,15 +131,16 @@ class DeviceDiscoverManagerImpl : DeviceDiscoverManager {
     @SuppressLint("WifiManagerLeak")
     private fun sendBroadcastMsg() {
         try {
-            val wifiManager = AirControllerApp.getInstance()
-                .getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifiManager =
+                AirControllerApp.getInstance()
+                    .getSystemService(Context.WIFI_SERVICE) as WifiManager
 
             val ip = Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
             val name = Build.MODEL
 
             val searchCmd = "${Constants.SEARCH_PREFIX}${
-            Constants
-                .RANDOM_STR_SEARCH
+                Constants
+                    .RANDOM_STR_SEARCH
             }#${Constants.PLATFORM_ANDROID}#$name#$ip"
 
             val cmdByteArray = searchCmd.toByteArray()

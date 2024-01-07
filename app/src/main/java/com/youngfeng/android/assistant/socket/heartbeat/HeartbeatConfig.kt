@@ -9,7 +9,7 @@ enum class HeartbeatStrategy {
     /**
      * 在心跳过程中，如果有新客户端连接，则踢掉当前连接，连接到新客户端
      */
-    ConnectToNewWhenJoin
+    ConnectToNewWhenJoin,
 }
 
 data class HeartbeatConfig(
@@ -17,5 +17,5 @@ data class HeartbeatConfig(
     var strategy: HeartbeatStrategy = HeartbeatStrategy.ConnectToNewWhenJoin,
     var timeoutInMills: Int = 3000,
     var retryWaitTimeInMills: Int = 12000,
-    var disconnectClientWhenTimeout: Boolean = true
+    var disconnectClientWhenTimeout: Boolean = true,
 )

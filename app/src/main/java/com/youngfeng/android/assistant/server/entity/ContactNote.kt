@@ -5,5 +5,5 @@ data class ContactNote(
     val contactId: Long,
     val note: String?,
     val isPrimary: Boolean,
-    val isSuperPrimary: Boolean
+    val isSuperPrimary: Boolean,
 )

@@ -32,6 +32,7 @@ import com.youngfeng.android.assistant.event.DeviceReportEvent
 import com.youngfeng.android.assistant.event.Permission
 import com.youngfeng.android.assistant.event.RequestPermissionsEvent
 import com.youngfeng.android.assistant.home.HomeViewModel
+import com.youngfeng.android.assistant.manager.PermissionManager
 import com.youngfeng.android.assistant.model.DesktopInfo
 import com.youngfeng.android.assistant.model.Device
 import com.youngfeng.android.assistant.scan.ScanActivity
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private val mDisconnectConfirmDialog by lazy {
         AlertDialog.Builder(this)
             .setPositiveButton(
-                R.string.sure
+                R.string.sure,
             ) { _, _ -> mViewModel.disconnect() }
             .setNegativeButton(R.string.cancel) { dialog, _ ->
                 dialog.dismiss()
@@ -60,11 +61,11 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private val mSupportDeveloperDialog by lazy {
         AlertDialog.Builder(this)
             .setPositiveButton(
-                R.string.support
+                R.string.support,
             ) { _, _ ->
                 CommonUtil.openExternalBrowser(
                     this,
-                    getString(R.string.url_project_desktop)
+                    getString(R.string.url_project_desktop),
                 )
             }
             .setNegativeButton(R.string.refuse) { dialog, _ ->
@@ -75,7 +76,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private val mUninstalledPackages = mutableListOf<String>()
     private lateinit var mUninstallLauncher: ActivityResultLauncher<Intent>
     private val mPermissionManager by lazy {
-        com.youngfeng.android.assistant.manager.PermissionManager.with(this)
+        PermissionManager.with(this)
     }
 
     companion object {
@@ -169,14 +170,16 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         val connectivityManager =
             getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(object :
+            connectivityManager.registerDefaultNetworkCallback(
+                object :
                     ConnectivityManager.NetworkCallback() {
                     override fun onAvailable(network: Network) {
                         super.onAvailable(network)
 
                         runOnUiThread {
-                            val isWifiConnected = connectivityManager.getNetworkCapabilities(network)
-                                ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                            val isWifiConnected =
+                                connectivityManager.getNetworkCapabilities(network)
+                                    ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
                             mViewModel.setWifiConnectStatus(isWifiConnected == true)
                         }
                     }
@@ -188,7 +191,8 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                             mViewModel.setWifiConnectStatus(false)
                         }
                     }
-                })
+                },
+            )
         } else {
             val request =
                 NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -214,7 +218,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                             mViewModel.setWifiConnectStatus(false)
                         }
                     }
-                }
+                },
             )
         }
     }
@@ -229,13 +233,14 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     }
 
     private fun updatePermissionsStatus() {
-        val permissions = mutableListOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.GET_ACCOUNTS,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS,
-        )
+        val permissions =
+            mutableListOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.GET_ACCOUNTS,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS,
+            )
 
         EasyPermissions.hasPermissions(this, *permissions.toTypedArray()).apply {
             mViewModel.updateAllPermissionsGranted(this)
@@ -244,17 +249,18 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     // 请求必要权限，includeAppNeeded为false时，表示只请求桌面端所需手机权限，否则请求所有app所需权限
     private fun requestPermissions(includeAppNeeded: Boolean) {
-        val perms = mutableListOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.GET_ACCOUNTS,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS,
-        )
+        val perms =
+            mutableListOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.GET_ACCOUNTS,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.WRITE_CONTACTS,
+            )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             perms.add(
-                Manifest.permission.REQUEST_INSTALL_PACKAGES
+                Manifest.permission.REQUEST_INSTALL_PACKAGES,
             )
         }
 
@@ -269,7 +275,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 .setRationale(R.string.rationale_permissions)
                 .setPositiveButtonText(R.string.rationale_ask_ok)
                 .setNegativeButtonText(R.string.rationale_ask_cancel)
-                .build()
+                .build(),
         )
     }
 
@@ -311,15 +317,16 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     @RequiresApi(Build.VERSION_CODES.M)
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onRequestPermissions(event: RequestPermissionsEvent) {
-        val permissions = event.permissions.map {
-            when (it) {
-                Permission.GetAccounts -> Manifest.permission.GET_ACCOUNTS
-                Permission.ReadContacts -> Manifest.permission.READ_CONTACTS
-                Permission.WriteContacts -> Manifest.permission.WRITE_CONTACTS
-                Permission.RequestInstallPackages -> Manifest.permission.REQUEST_INSTALL_PACKAGES
-                Permission.WriteExternalStorage -> Manifest.permission.WRITE_EXTERNAL_STORAGE
-            }
-        }.toTypedArray()
+        val permissions =
+            event.permissions.map {
+                when (it) {
+                    Permission.GetAccounts -> Manifest.permission.GET_ACCOUNTS
+                    Permission.ReadContacts -> Manifest.permission.READ_CONTACTS
+                    Permission.WriteContacts -> Manifest.permission.WRITE_CONTACTS
+                    Permission.RequestInstallPackages -> Manifest.permission.REQUEST_INSTALL_PACKAGES
+                    Permission.WriteExternalStorage -> Manifest.permission.WRITE_EXTERNAL_STORAGE
+                }
+            }.toTypedArray()
 
         mPermissionManager.requestMultiplePermissions(RC_PERMISSIONS, *permissions)
     }
@@ -351,11 +358,7 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

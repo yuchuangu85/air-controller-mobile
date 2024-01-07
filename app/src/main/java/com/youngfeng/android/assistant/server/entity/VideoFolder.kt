@@ -5,5 +5,5 @@ data class VideoFolder(
     var name: String,
     var videoCount: Int = 0,
     var coverVideoId: Long,
-    var path: String
+    var path: String,
 )

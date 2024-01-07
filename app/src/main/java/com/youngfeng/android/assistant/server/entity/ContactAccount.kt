@@ -2,5 +2,5 @@ package com.youngfeng.android.assistant.server.entity
 
 data class ContactAccount(
     val name: String = "",
-    val type: String = ""
+    val type: String = "",
 )

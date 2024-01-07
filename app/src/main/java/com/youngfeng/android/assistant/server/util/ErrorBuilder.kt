@@ -32,11 +32,12 @@ class ErrorBuilder {
         var msg: String? = null
 
         error?.apply {
-            msg = if (null != locale) {
-                AirControllerApp.getInstance().getString(locale!!, this.value)
-            } else {
-                AirControllerApp.getInstance().getString(this.value)
-            }
+            msg =
+                if (null != locale) {
+                    AirControllerApp.getInstance().getString(locale!!, this.value)
+                } else {
+                    AirControllerApp.getInstance().getString(this.value)
+                }
         }
         return HttpResponseEntity(code = code.toIntOrNull() ?: -1, msg = msg, data = null)
     }

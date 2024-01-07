@@ -13,5 +13,5 @@ open class CreateNewContactRequest(
     val ims: List<ContactFieldItem>?,
     val addresses: List<ContactFieldItem>?,
     val relations: List<ContactFieldItem>?,
-    val note: String?
+    val note: String?,
 )

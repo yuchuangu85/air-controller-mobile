@@ -6,7 +6,6 @@ import timber.log.Timber
 import java.io.File
 
 object PathHelper {
-
     fun uploadFileDir(): File {
         val uploadDir = File(rootFileDir(), "upload")
 

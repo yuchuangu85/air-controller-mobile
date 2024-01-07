@@ -15,11 +15,12 @@ import java.util.concurrent.TimeUnit
  */
 class SimpleSocketServer(private val port: Int) {
     private val mExecutorService by lazy {
-        val executor = ThreadPoolExecutor(
-            4, 8,
-            Long.MAX_VALUE, TimeUnit.SECONDS,
-            SynchronousQueue()
-        )
+        val executor =
+            ThreadPoolExecutor(
+                4, 8,
+                Long.MAX_VALUE, TimeUnit.SECONDS,
+                SynchronousQueue(),
+            )
         executor.allowCoreThreadTimeOut(false)
         executor
     }

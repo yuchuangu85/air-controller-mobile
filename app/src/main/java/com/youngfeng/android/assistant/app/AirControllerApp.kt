@@ -15,10 +15,11 @@ import java.util.concurrent.TimeUnit
 class AirControllerApp : Application() {
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
     private val mExecutorService by lazy {
-        val threadPoolExecutor = ThreadPoolExecutor(
-            1, 1, Long.MAX_VALUE, TimeUnit.MILLISECONDS,
-            LinkedBlockingQueue<Runnable>()
-        )
+        val threadPoolExecutor =
+            ThreadPoolExecutor(
+                1, 1, Long.MAX_VALUE, TimeUnit.MILLISECONDS,
+                LinkedBlockingQueue<Runnable>(),
+            )
         threadPoolExecutor.allowCoreThreadTimeOut(false)
         threadPoolExecutor
     }

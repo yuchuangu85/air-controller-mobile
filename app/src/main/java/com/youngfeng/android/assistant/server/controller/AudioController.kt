@@ -48,10 +48,7 @@ class AudioController {
 
     @PostMapping("/delete")
     @ResponseBody
-    fun delete(
-        httpRequest: HttpRequest,
-        @RequestBody request: DeleteAudioRequest
-    ): HttpResponseEntity<Any> {
+    fun delete(httpRequest: HttpRequest, @RequestBody request: DeleteAudioRequest): HttpResponseEntity<Any> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
 
@@ -63,12 +60,13 @@ class AudioController {
 
                 val isSuccess = audioFile.delete()
                 if (!isSuccess) {
-                    val response = ErrorBuilder().locale(locale).module(HttpModule.AudioModule)
-                        .error(HttpError.DeleteAudioFail).build<Any>()
+                    val response =
+                        ErrorBuilder().locale(locale).module(HttpModule.AudioModule)
+                            .error(HttpError.DeleteAudioFail).build<Any>()
                     response.msg =
                         mContext.getString(locale, R.string.delete_audio_file_fail).replace(
                             "%s",
-                            audioFile.absolutePath
+                            audioFile.absolutePath,
                         )
                     return response
                 } else {
@@ -76,14 +74,15 @@ class AudioController {
                         mContext,
                         arrayOf(audioFile.absolutePath),
                         null,
-                        null
+                        null,
                     )
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.AudioModule)
-                .error(HttpError.DeleteAudioFail).build<Any>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.AudioModule)
+                    .error(HttpError.DeleteAudioFail).build<Any>()
             response.msg = e.message
             return response
         }
@@ -92,7 +91,11 @@ class AudioController {
     }
 
     @GetMapping("/item/{id}")
-    fun findById(request: HttpRequest, response: HttpResponse, @PathVariable("id") id: String): com.yanzhenjie.andserver.http.ResponseBody {
+    fun findById(
+        request: HttpRequest,
+        response: HttpResponse,
+        @PathVariable("id") id: String,
+    ): com.yanzhenjie.andserver.http.ResponseBody {
         val audioEntity = AudioUtil.findById(mContext, id)
 
         if (null != audioEntity) {
@@ -102,7 +105,7 @@ class AudioController {
             return RangeSupportResponseBody(
                 contentType = MediaType("audio", audioFile.extension),
                 file = audioFile,
-                rangeHeader = rangeHeader
+                rangeHeader = rangeHeader,
             ).attachToResponse(response)
         } else {
             throw IllegalArgumentException("Audio item is not exist, id: $id")
@@ -121,8 +124,8 @@ class AudioController {
                 RequestPermissionsEvent(
                     arrayOf(
                         Permission.WriteExternalStorage,
-                    )
-                )
+                    ),
+                ),
             )
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
@@ -132,7 +135,7 @@ class AudioController {
                 val file = File(audioRootDir, "AirController/${audio.filename}")
                 audio.transferTo(file)
                 MediaScannerConnection.scanFile(
-                    mContext, arrayOf(file.path), null, null
+                    mContext, arrayOf(file.path), null, null,
                 )
             }
             return HttpResponseEntity.success()

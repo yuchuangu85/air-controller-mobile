@@ -71,10 +71,7 @@ class ImageController {
 
     @PostMapping("/delete")
     @ResponseBody
-    fun deleteImage(
-        httpRequest: HttpRequest,
-        @RequestBody request: DeleteImageRequest
-    ): HttpResponseEntity<Any> {
+    fun deleteImage(httpRequest: HttpRequest, @RequestBody request: DeleteImageRequest): HttpResponseEntity<Any> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
 
@@ -102,21 +99,23 @@ class ImageController {
                 MediaScannerConnection.scanFile(
                     mContext,
                     imageFiles.toTypedArray(),
-                    null
+                    null,
                 ) { path, uri ->
                     Timber.d("Path: $path, uri: ${uri?.path}")
                 }
             }
             if (!isAllSuccess) {
-                val response = ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
-                    .error(HttpError.DeleteImageFail).build<Any>()
+                val response =
+                    ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
+                        .error(HttpError.DeleteImageFail).build<Any>()
                 response.msg = resultMap.map { "${it.key}[${it.value}];" }.toString()
                 return response
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
-                .error(HttpError.DeleteImageFail).build<Any>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
+                    .error(HttpError.DeleteImageFail).build<Any>()
             response.msg = e.message
             return response
         }
@@ -126,10 +125,7 @@ class ImageController {
 
     @PostMapping("/deleteAlbums")
     @ResponseBody
-    fun deleteAlbums(
-        httpRequest: HttpRequest,
-        @RequestBody request: DeleteAlbumsRequest
-    ): HttpResponseEntity<Any> {
+    fun deleteAlbums(httpRequest: HttpRequest, @RequestBody request: DeleteAlbumsRequest): HttpResponseEntity<Any> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
         try {
@@ -139,15 +135,17 @@ class ImageController {
             paths.forEach { path ->
                 val file = File(path)
                 if (!file.exists()) {
-                    val response = ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
-                        .error(HttpError.DeleteAlbumFail).build<Any>()
+                    val response =
+                        ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
+                            .error(HttpError.DeleteAlbumFail).build<Any>()
                     response.msg = convertToDeleteAlbumError(locale, paths.size, deleteItemNum)
                     return response
                 } else {
                     val isSuccess = file.deleteRecursively()
                     if (!isSuccess) {
-                        val response = ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
-                            .error(HttpError.DeleteAlbumFail).build<Any>()
+                        val response =
+                            ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
+                                .error(HttpError.DeleteAlbumFail).build<Any>()
                         response.msg = convertToDeleteAlbumError(locale, paths.size, deleteItemNum)
                         return response
                     } else {
@@ -161,18 +159,15 @@ class ImageController {
             return HttpResponseEntity.success()
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
-                .error(HttpError.DeleteAlbumFail).build<Any>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.ImageModule)
+                    .error(HttpError.DeleteAlbumFail).build<Any>()
             response.msg = e.message
             return response
         }
     }
 
-    private fun convertToDeleteAlbumError(
-        locale: Locale,
-        albumNum: Int,
-        deletedItemNum: Int
-    ): String {
+    private fun convertToDeleteAlbumError(locale: Locale, albumNum: Int, deletedItemNum: Int): String {
         if (deletedItemNum > 0) {
             return mContext.getString(locale, R.string.place_holder_delete_part_of_success)
                 .format(albumNum, deletedItemNum)
@@ -199,37 +194,41 @@ class ImageController {
     fun uploadPhoto(
         @RequestParam("pos") pos: Int,
         @RequestParam("photos") photos: Array<MultipartFile>,
-        @RequestParam("path") path: String? = null
+        @RequestParam("path") path: String? = null,
     ): HttpResponseEntity<List<ImageEntity>> {
-        val images = photos.map { photo ->
-            var targetPhoto: File? = null
+        val images =
+            photos.map { photo ->
+                var targetPhoto: File? = null
 
-            val fileName = photo.filename ?: photo.name
+                val fileName = photo.filename ?: photo.name
 
-            when (pos) {
-                POS_ALL -> PathHelper.photoRootDir()?.apply {
-                    targetPhoto = File(this, "AirController/${fileName}")
+                when (pos) {
+                    POS_ALL ->
+                        PathHelper.photoRootDir()?.apply {
+                            targetPhoto = File(this, "AirController/${fileName}")
+                        }
+                    POS_CAMERA ->
+                        PathHelper.cameraDir()?.apply {
+                            targetPhoto = File(this, fileName)
+                        }
+                    else ->
+                        path?.apply {
+                            targetPhoto = File(path, fileName)
+                        }
                 }
-                POS_CAMERA -> PathHelper.cameraDir()?.apply {
-                    targetPhoto = File(this, fileName)
-                }
-                else -> path?.apply {
-                    targetPhoto = File(path, fileName)
-                }
+
+                targetPhoto?.let {
+                    photo.transferTo(it)
+
+                    MediaScannerConnection.scanFile(mContext, arrayOf(it.path), null, null)
+
+                    PhotoUtil.findImageByPath(mContext, it.path)?.apply {
+                        this.createTime = if (createTime == null || createTime!! <= 0L) System.currentTimeMillis() else createTime
+                    }
+                } ?: return ErrorBuilder().module(HttpModule.ImageModule)
+                    .error(HttpError.GetPhotoDirFailure)
+                    .build()
             }
-
-            targetPhoto?.let {
-                photo.transferTo(it)
-
-                MediaScannerConnection.scanFile(mContext, arrayOf(it.path), null, null)
-
-                PhotoUtil.findImageByPath(mContext, it.path)?.apply {
-                    this.createTime = if (createTime == null || createTime!! <= 0L) System.currentTimeMillis() else createTime
-                }
-            } ?: return ErrorBuilder().module(HttpModule.ImageModule)
-                .error(HttpError.GetPhotoDirFailure)
-                .build()
-        }
 
         return HttpResponseEntity.success(images)
     }

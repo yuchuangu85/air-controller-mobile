@@ -54,10 +54,11 @@ class ScanActivity : AppCompatActivity(), QRCodeView.Delegate, EasyPermissions.P
     }
 
     private fun openAppDetailPage() {
-        val intent = Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", packageName, null)
-        )
+        val intent =
+            Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", packageName, null),
+            )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
     }
@@ -86,7 +87,7 @@ class ScanActivity : AppCompatActivity(), QRCodeView.Delegate, EasyPermissions.P
                     .setRationale(R.string.rationale_camera_perm)
                     .setPositiveButtonText(R.string.rationale_ask_ok)
                     .setNegativeButtonText(R.string.rationale_ask_cancel)
-                    .build()
+                    .build(),
             )
         }
     }
@@ -126,11 +127,7 @@ class ScanActivity : AppCompatActivity(), QRCodeView.Delegate, EasyPermissions.P
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults)

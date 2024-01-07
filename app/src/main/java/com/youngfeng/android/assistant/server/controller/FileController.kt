@@ -38,7 +38,7 @@ open class FileController {
     @ResponseBody
     fun getFileList(
         httpRequest: HttpRequest,
-        @RequestBody requestBody: GetFileListRequest
+        @RequestBody requestBody: GetFileListRequest,
     ): HttpResponseEntity<List<FileEntity>> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
@@ -46,7 +46,7 @@ open class FileController {
         // 先判断是否存在读取外部存储权限
         if (ContextCompat.checkSelfPermission(
                 AirControllerApp.getInstance(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -69,30 +69,34 @@ open class FileController {
 
         var data = mutableListOf<FileEntity>()
         files?.forEach {
-            val fileEntity = FileEntity(
-                it.name,
-                it.parentFile?.absolutePath ?: "",
-                if (it.isFile) it.length() else 0,
-                it.isDirectory,
-                it.lastModified(),
-                it.listFiles()?.isEmpty() ?: false
-            )
+            val fileEntity =
+                FileEntity(
+                    it.name,
+                    it.parentFile?.absolutePath ?: "",
+                    if (it.isFile) it.length() else 0,
+                    it.isDirectory,
+                    it.lastModified(),
+                    it.listFiles()?.isEmpty() ?: false,
+                )
             data.add(fileEntity)
         }
 
-        data = data.sortedWith(object : Comparator<FileEntity> {
-            override fun compare(a: FileEntity, b: FileEntity): Int {
-                if (a.isDir && !b.isDir) {
-                    return -1;
-                }
+        data =
+            data.sortedWith(
+                object : Comparator<FileEntity> {
+                    override fun compare(a: FileEntity, b: FileEntity): Int {
+                        if (a.isDir && !b.isDir) {
+                            return -1;
+                        }
 
-                if (!a.isDir && b.isDir) {
-                    return 1;
-                }
+                        if (!a.isDir && b.isDir) {
+                            return 1;
+                        }
 
-                return a.name.lowercase().compareTo(b.name.lowercase());
-            }
-        }).toMutableList()
+                        return a.name.lowercase().compareTo(b.name.lowercase());
+                    }
+                },
+            ).toMutableList()
 
         return HttpResponseEntity.success(data)
     }
@@ -101,7 +105,7 @@ open class FileController {
     @ResponseBody
     fun createFile(
         httpRequest: HttpRequest,
-        @RequestBody request: CreateFileRequest
+        @RequestBody request: CreateFileRequest,
     ): HttpResponseEntity<Map<String, Any>> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
@@ -109,7 +113,7 @@ open class FileController {
         // 先判断是否存在写入外部存储权限
         if (ContextCompat.checkSelfPermission(
                 AirControllerApp.getInstance(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -144,8 +148,8 @@ open class FileController {
                     HttpResponseEntity.success(
                         mapOf(
                             "name" to fileName,
-                            "isDir" to true
-                        )
+                            "isDir" to true,
+                        ),
                     )
                 } else {
                     ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -158,8 +162,8 @@ open class FileController {
                     HttpResponseEntity.success(
                         mapOf(
                             "name" to fileName,
-                            "isDir" to false
-                        )
+                            "isDir" to false,
+                        ),
                     )
                 } else {
                     ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -169,8 +173,9 @@ open class FileController {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.FileModule)
-                .error(HttpError.CreateFileFail).build<Map<String, Any>>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.FileModule)
+                    .error(HttpError.CreateFileFail).build<Map<String, Any>>()
             response.msg = e.message
             return response
         }
@@ -183,7 +188,7 @@ open class FileController {
     @ResponseBody
     fun delete(
         httpRequest: HttpRequest,
-        @RequestBody request: DeleteFileRequest
+        @RequestBody request: DeleteFileRequest,
     ): HttpResponseEntity<Map<String, Any>> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
@@ -191,7 +196,7 @@ open class FileController {
         // 先判断是否存在写入外部存储权限
         if (ContextCompat.checkSelfPermission(
                 AirControllerApp.getInstance(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -212,8 +217,8 @@ open class FileController {
                 HttpResponseEntity.success(
                     mapOf(
                         "path" to path,
-                        "isDir" to request.isDir
-                    )
+                        "isDir" to request.isDir,
+                    ),
                 )
             } else {
                 ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -221,8 +226,9 @@ open class FileController {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.FileModule)
-                .error(HttpError.DeleteFileFail).build<Map<String, Any>>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.FileModule)
+                    .error(HttpError.DeleteFileFail).build<Map<String, Any>>()
             response.msg = e.message
             return response
         }
@@ -233,17 +239,14 @@ open class FileController {
      */
     @PostMapping("/deleteMulti")
     @ResponseBody
-    fun deleteMulti(
-        httpRequest: HttpRequest,
-        @RequestBody request: DeleteMultiFileRequest
-    ): HttpResponseEntity<Any> {
+    fun deleteMulti(httpRequest: HttpRequest, @RequestBody request: DeleteMultiFileRequest): HttpResponseEntity<Any> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
 
         // 先判断是否存在写入外部存储权限
         if (ContextCompat.checkSelfPermission(
                 AirControllerApp.getInstance(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -276,15 +279,17 @@ open class FileController {
             if (deleteCount == paths.size) {
                 return HttpResponseEntity.success()
             } else {
-                val response = ErrorBuilder().locale(locale).module(HttpModule.FileModule)
-                    .error(HttpError.DeleteFileFail).build<Any>()
+                val response =
+                    ErrorBuilder().locale(locale).module(HttpModule.FileModule)
+                        .error(HttpError.DeleteFileFail).build<Any>()
                 response.msg = "Delete ${deleteCount} success，${paths.size - deleteCount} failure."
                 return response
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.FileModule)
-                .error(HttpError.DeleteFileFail).build<Any>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.FileModule)
+                    .error(HttpError.DeleteFileFail).build<Any>()
             response.msg = e.message
             return response
         }
@@ -297,7 +302,7 @@ open class FileController {
     @ResponseBody
     fun rename(
         httpRequest: HttpRequest,
-        @RequestBody request: RenameFileRequest
+        @RequestBody request: RenameFileRequest,
     ): HttpResponseEntity<Map<String, String>> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
@@ -305,7 +310,7 @@ open class FileController {
         // 先判断是否存在写入外部存储权限
         if (ContextCompat.checkSelfPermission(
                 AirControllerApp.getInstance(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -332,8 +337,8 @@ open class FileController {
                 HttpResponseEntity.success(
                     mapOf(
                         "folder" to folder,
-                        "newName" to newName
-                    )
+                        "newName" to newName,
+                    ),
                 )
             } else {
                 ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -341,8 +346,9 @@ open class FileController {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.FileModule)
-                .error(HttpError.RenameFileFail).build<Map<String, String>>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.FileModule)
+                    .error(HttpError.RenameFileFail).build<Map<String, String>>()
             response.msg = e.message
             return response
         }
@@ -352,7 +358,7 @@ open class FileController {
     @ResponseBody
     fun move(
         httpRequest: HttpRequest,
-        @RequestBody request: MoveFileRequest
+        @RequestBody request: MoveFileRequest,
     ): HttpResponseEntity<Map<String, String>> {
         val languageCode = httpRequest.getHeader("languageCode")
         val locale = if (!TextUtils.isEmpty(languageCode)) Locale(languageCode!!) else Locale("en")
@@ -360,7 +366,7 @@ open class FileController {
         // 先判断是否存在写入外部存储权限
         if (ContextCompat.checkSelfPermission(
                 AirControllerApp.getInstance(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -387,8 +393,8 @@ open class FileController {
                 HttpResponseEntity.success(
                     mapOf(
                         "newFolder" to newFolder,
-                        "name" to fileName
-                    )
+                        "name" to fileName,
+                    ),
                 )
             } else {
                 ErrorBuilder().locale(locale).module(HttpModule.FileModule)
@@ -396,8 +402,9 @@ open class FileController {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            val response = ErrorBuilder().locale(locale).module(HttpModule.FileModule)
-                .error(HttpError.MoveFileFail).build<Map<String, String>>()
+            val response =
+                ErrorBuilder().locale(locale).module(HttpModule.FileModule)
+                    .error(HttpError.MoveFileFail).build<Map<String, String>>()
             response.msg = e.message
             return response
         }
@@ -422,30 +429,34 @@ open class FileController {
                 .error(HttpError.DownloadDirNotExist).build()
         }
 
-        var data = downloadDir.listFiles()?.map {
-            FileEntity(
-                isDir = it.isDirectory,
-                name = it.name,
-                folder = downloadDir.absolutePath,
-                size = if (it.isFile) it.length() else it.totalSpace,
-                changeDate = it.lastModified(),
-                isEmpty = if (it.isDirectory) it.listFiles()?.size ?: -1 <= 0 else true
-            )
-        }
-
-        data = data?.sortedWith(object : Comparator<FileEntity> {
-            override fun compare(a: FileEntity, b: FileEntity): Int {
-                if (a.isDir && !b.isDir) {
-                    return -1;
-                }
-
-                if (!a.isDir && b.isDir) {
-                    return 1;
-                }
-
-                return a.name.lowercase().compareTo(b.name.lowercase());
+        var data =
+            downloadDir.listFiles()?.map {
+                FileEntity(
+                    isDir = it.isDirectory,
+                    name = it.name,
+                    folder = downloadDir.absolutePath,
+                    size = if (it.isFile) it.length() else it.totalSpace,
+                    changeDate = it.lastModified(),
+                    isEmpty = if (it.isDirectory) it.listFiles()?.size ?: -1 <= 0 else true,
+                )
             }
-        })
+
+        data =
+            data?.sortedWith(
+                object : Comparator<FileEntity> {
+                    override fun compare(a: FileEntity, b: FileEntity): Int {
+                        if (a.isDir && !b.isDir) {
+                            return -1;
+                        }
+
+                        if (!a.isDir && b.isDir) {
+                            return 1;
+                        }
+
+                        return a.name.lowercase().compareTo(b.name.lowercase());
+                    }
+                },
+            )
 
         return HttpResponseEntity.success(data)
     }
@@ -464,7 +475,7 @@ open class FileController {
         @RequestParam("files") files: Array<MultipartFile>,
         @RequestParam("folder") folder: String?,
         @RequestParam("zipInfo") zipInfo: String?,
-        @RequestParam("rootDirType") rootDirType: Int
+        @RequestParam("rootDirType") rootDirType: Int,
     ): HttpResponseEntity<Any> {
         if (!EasyPermissions.hasPermissions(
                 mContext,
@@ -475,8 +486,8 @@ open class FileController {
                 RequestPermissionsEvent(
                     arrayOf(
                         Permission.WriteExternalStorage,
-                    )
-                )
+                    ),
+                ),
             )
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
@@ -487,9 +498,10 @@ open class FileController {
             if (rootDirType == Constants.ROOT_DIR_TYPE_SDCARD) {
                 targetFolder = Environment.getExternalStorageDirectory().absolutePath
             } else {
-                targetFolder = Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS
-                ).absolutePath
+                targetFolder =
+                    Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS,
+                    ).absolutePath
             }
         } else {
             targetFolder = folder
@@ -515,7 +527,7 @@ open class FileController {
                 }
             }
             MediaScannerConnection.scanFile(
-                mContext, arrayOf(targetFile.path), null, null
+                mContext, arrayOf(targetFile.path), null, null,
             )
         }
         return HttpResponseEntity.success()

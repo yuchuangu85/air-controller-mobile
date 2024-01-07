@@ -5,20 +5,20 @@ import android.provider.MediaStore
 import com.youngfeng.android.assistant.server.entity.AudioEntity
 
 object AudioUtil {
-
     fun getAllAudios(context: Context): List<AudioEntity> {
         val contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
-        val projection = arrayOf(
-            MediaStore.Audio.AudioColumns._ID,
-            MediaStore.Audio.AudioColumns.DATE_ADDED,
-            MediaStore.Audio.AudioColumns.DISPLAY_NAME,
-            MediaStore.Audio.AudioColumns.DURATION,
-            MediaStore.Audio.AudioColumns.SIZE,
-            MediaStore.Audio.AudioColumns.DATA,
-            MediaStore.Audio.AudioColumns.IS_MUSIC,
-            MediaStore.Audio.AudioColumns.DATE_MODIFIED
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Audio.AudioColumns._ID,
+                MediaStore.Audio.AudioColumns.DATE_ADDED,
+                MediaStore.Audio.AudioColumns.DISPLAY_NAME,
+                MediaStore.Audio.AudioColumns.DURATION,
+                MediaStore.Audio.AudioColumns.SIZE,
+                MediaStore.Audio.AudioColumns.DATA,
+                MediaStore.Audio.AudioColumns.IS_MUSIC,
+                MediaStore.Audio.AudioColumns.DATE_MODIFIED,
+            )
 
         val audios = mutableListOf<AudioEntity>()
 
@@ -55,8 +55,8 @@ object AudioUtil {
                             path = path,
                             isMusic = cursor.getInt(isMusicIndex) != 0,
                             folder = folder,
-                            modifyDate = cursor.getLong(dateModifiedIndex)
-                        )
+                            modifyDate = cursor.getLong(dateModifiedIndex),
+                        ),
                     )
                 } while (cursor.moveToNext())
             }
@@ -68,16 +68,17 @@ object AudioUtil {
     fun findById(context: Context, id: String): AudioEntity? {
         val contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
-        val projection = arrayOf(
-            MediaStore.Audio.AudioColumns._ID,
-            MediaStore.Audio.AudioColumns.DATE_ADDED,
-            MediaStore.Audio.AudioColumns.DISPLAY_NAME,
-            MediaStore.Audio.AudioColumns.DURATION,
-            MediaStore.Audio.AudioColumns.SIZE,
-            MediaStore.Audio.AudioColumns.DATA,
-            MediaStore.Audio.AudioColumns.IS_MUSIC,
-            MediaStore.Audio.AudioColumns.DATE_MODIFIED
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Audio.AudioColumns._ID,
+                MediaStore.Audio.AudioColumns.DATE_ADDED,
+                MediaStore.Audio.AudioColumns.DISPLAY_NAME,
+                MediaStore.Audio.AudioColumns.DURATION,
+                MediaStore.Audio.AudioColumns.SIZE,
+                MediaStore.Audio.AudioColumns.DATA,
+                MediaStore.Audio.AudioColumns.IS_MUSIC,
+                MediaStore.Audio.AudioColumns.DATE_MODIFIED,
+            )
 
         val selection = "${MediaStore.Audio.AudioColumns._ID} = ?"
         val selectionArgs = arrayOf(id)
@@ -115,7 +116,7 @@ object AudioUtil {
                         path = path,
                         isMusic = cursor.getInt(isMusicIndex) != 0,
                         folder = folder,
-                        modifyDate = cursor.getLong(dateModifiedIndex)
+                        modifyDate = cursor.getLong(dateModifiedIndex),
                     )
                 }
             }

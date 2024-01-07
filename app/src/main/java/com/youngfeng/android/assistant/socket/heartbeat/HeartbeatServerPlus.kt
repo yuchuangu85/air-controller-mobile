@@ -27,11 +27,12 @@ interface HeartbeatServerPlus {
 class HeartbeatServerPlusImpl(private var config: HeartbeatConfig) : HeartbeatServerPlus {
     private var isStarted = false
     private val mSingleExecutors by lazy {
-        val executor = ThreadPoolExecutor(
-            4, 8,
-            Long.MAX_VALUE, TimeUnit.SECONDS,
-            SynchronousQueue()
-        )
+        val executor =
+            ThreadPoolExecutor(
+                4, 8,
+                Long.MAX_VALUE, TimeUnit.SECONDS,
+                SynchronousQueue(),
+            )
         executor.allowCoreThreadTimeOut(false)
         executor
     }
@@ -57,15 +58,16 @@ class HeartbeatServerPlusImpl(private var config: HeartbeatConfig) : HeartbeatSe
                     if (mClients.isEmpty()) {
                         val socket = mServerSocket.accept()
 
-                        val client = HeartbeatClient.create(socket, config, onTimeout = { client ->
-                            mListeners.forEach { it.onClientTimeout(client) }
-                            mClients.clear()
-                        }) { client ->
-                            mClients.remove(client)
-                            if (mClients.isEmpty()) {
-                                mListeners.forEach { it.onClientDisconnected() }
+                        val client =
+                            HeartbeatClient.create(socket, config, onTimeout = { client ->
+                                mListeners.forEach { it.onClientTimeout(client) }
+                                mClients.clear()
+                            }) { client ->
+                                mClients.remove(client)
+                                if (mClients.isEmpty()) {
+                                    mListeners.forEach { it.onClientDisconnected() }
+                                }
                             }
-                        }
                         mClients.add(client)
                         mListeners.forEach {
                             it.onClientConnected(client)
@@ -82,15 +84,16 @@ class HeartbeatServerPlusImpl(private var config: HeartbeatConfig) : HeartbeatSe
                                 mClients.clear()
                             }
 
-                            val client = HeartbeatClient.create(socket, config, onTimeout = { client ->
-                                mListeners.forEach { it.onClientTimeout(client) }
-                                mClients.clear()
-                            }) { client ->
-                                mClients.remove(client)
-                                if (mClients.isEmpty()) {
-                                    mListeners.forEach { it.onClientDisconnected() }
+                            val client =
+                                HeartbeatClient.create(socket, config, onTimeout = { client ->
+                                    mListeners.forEach { it.onClientTimeout(client) }
+                                    mClients.clear()
+                                }) { client ->
+                                    mClients.remove(client)
+                                    if (mClients.isEmpty()) {
+                                        mListeners.forEach { it.onClientDisconnected() }
+                                    }
                                 }
-                            }
                             mClients.add(client)
                             mListeners.forEach {
                                 it.onClientConnected(client)

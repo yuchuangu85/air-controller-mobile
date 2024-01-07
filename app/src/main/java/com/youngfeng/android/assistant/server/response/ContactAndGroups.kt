@@ -5,7 +5,7 @@ import com.youngfeng.android.assistant.server.entity.ContactGroup
 
 data class ContactAccountInfo(
     val account: ContactAccount,
-    val groups: List<ContactGroup>
+    val groups: List<ContactGroup>,
 )
 
 data class ContactAndGroups(

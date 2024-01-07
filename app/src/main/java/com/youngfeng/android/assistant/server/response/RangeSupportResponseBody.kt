@@ -10,7 +10,7 @@ import java.io.OutputStream
 class RangeSupportResponseBody(
     private val contentType: MediaType? = null,
     private val file: File,
-    rangeHeader: String?
+    rangeHeader: String?,
 ) : ResponseBody {
     private val responseRangeHeader = mutableMapOf<String, String>()
 
@@ -52,6 +52,10 @@ class RangeSupportResponseBody(
     }
 
     override fun isRepeatable(): Boolean {
+        return true
+    }
+
+    override fun isChunked(): Boolean {
         return true
     }
 

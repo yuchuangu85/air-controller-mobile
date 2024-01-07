@@ -7,7 +7,7 @@ import com.youngfeng.android.assistant.server.util.ErrorBuilder
 data class HttpResponseEntity<T>(
     var code: Int,
     var data: T?,
-    var msg: String?
+    var msg: String?,
 ) {
     companion object {
         const val CODE_SUCCESS = 0

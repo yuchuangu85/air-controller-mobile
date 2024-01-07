@@ -40,13 +40,14 @@ import java.util.concurrent.TimeUnit
 
 class NetworkService : Service() {
     private val mBatteryReceiver by lazy {
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
-                    notifyBatteryChanged()
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    if (intent.action == Intent.ACTION_BATTERY_CHANGED) {
+                        notifyBatteryChanged()
+                    }
                 }
             }
-        }
 
         receiver
     }
@@ -71,10 +72,11 @@ class NetworkService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        mWakeLock = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
-            ON_AFTER_RELEASE or PARTIAL_WAKE_LOCK,
-            "AirController:NetworkService"
-        )
+        mWakeLock =
+            (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
+                ON_AFTER_RELEASE or PARTIAL_WAKE_LOCK,
+                "AirController:NetworkService",
+            )
         mWakeLock.acquire(60 * 60 * 1000L)
 
         CmdSocketServer.getInstance().onOpen = {
@@ -86,38 +88,40 @@ class NetworkService : Service() {
         CmdSocketServer.getInstance().start()
 
         heartbeatServer = HeartbeatServerPlus.create()
-        heartbeatServer.addListener(object : HeartbeatListener() {
-            override fun onStart() {
-                super.onStart()
+        heartbeatServer.addListener(
+            object : HeartbeatListener() {
+                override fun onStart() {
+                    super.onStart()
 
-                Timber.d("Heartbeat server start success.")
-            }
+                    Timber.d("Heartbeat server start success.")
+                }
 
-            override fun onStop() {
-                super.onStop()
+                override fun onStop() {
+                    super.onStop()
 
-                Timber.d("Heartbeat server stop success.")
-            }
+                    Timber.d("Heartbeat server stop success.")
+                }
 
-            override fun onClientTimeout(client: HeartbeatClient) {
-                super.onClientTimeout(client)
+                override fun onClientTimeout(client: HeartbeatClient) {
+                    super.onClientTimeout(client)
 
-                EventBus.getDefault().post(DeviceDisconnectEvent())
-                Timber.d("Heartbeat server, onClientTimeout.")
-            }
+                    EventBus.getDefault().post(DeviceDisconnectEvent())
+                    Timber.d("Heartbeat server, onClientTimeout.")
+                }
 
-            override fun onClientConnected(client: HeartbeatClient?) {
-                super.onClientConnected(client)
+                override fun onClientConnected(client: HeartbeatClient?) {
+                    super.onClientConnected(client)
 
-                EventBus.getDefault().post(DeviceConnectEvent())
-                Timber.d("Heartbeat server, onNewClientJoin.")
-            }
+                    EventBus.getDefault().post(DeviceConnectEvent())
+                    Timber.d("Heartbeat server, onNewClientJoin.")
+                }
 
-            override fun onClientDisconnected() {
-                super.onClientDisconnected()
-                EventBus.getDefault().post(DeviceDisconnectEvent())
-            }
-        })
+                override fun onClientDisconnected() {
+                    super.onClientDisconnected()
+                    EventBus.getDefault().post(DeviceDisconnectEvent())
+                }
+            },
+        )
         heartbeatServer.start()
 
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
@@ -178,25 +182,28 @@ class NetworkService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            val channelId = "channelId" + System.currentTimeMillis()
-            val channel = NotificationChannel(channelId, resources.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH)
-            manager.createNotificationChannel(channel)
+        val builder =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                val channelId = "channelId" + System.currentTimeMillis()
+                val channel =
+                    NotificationChannel(channelId, resources.getString(R.string.app_name), NotificationManager.IMPORTANCE_HIGH)
+                manager.createNotificationChannel(channel)
 
-            Notification.Builder(this, channelId)
-        } else {
-            Notification.Builder(this)
-        }
+                Notification.Builder(this, channelId)
+            } else {
+                Notification.Builder(this)
+            }
         val nfIntent = Intent(this, MainActivity::class.java)
         nfIntent.action = Intent.ACTION_MAIN
         nfIntent.addCategory(Intent.CATEGORY_LAUNCHER)
 
-        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getActivity(this, RC_NOTIFICATION, nfIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        } else {
-            PendingIntent.getActivity(this, RC_NOTIFICATION, nfIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        }
+        val pendingIntent =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.getActivity(this, RC_NOTIFICATION, nfIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            } else {
+                PendingIntent.getActivity(this, RC_NOTIFICATION, nfIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+            }
 
         builder.setContentIntent(pendingIntent)
             .setContentTitle(getString(R.string.app_name))

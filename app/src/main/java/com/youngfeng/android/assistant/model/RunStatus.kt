@@ -19,5 +19,5 @@ enum class RunStatus {
     /**
      * 全部功能运行不正常
      */
-    AllNotWorking
+    AllNotWorking,
 }

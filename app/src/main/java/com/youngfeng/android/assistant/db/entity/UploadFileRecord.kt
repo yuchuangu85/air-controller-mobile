@@ -13,5 +13,5 @@ data class UploadFileRecord(
     var size: Long,
     var md5: String,
     @ColumnInfo(name = "upload_time")
-    var uploadTime: Long
+    var uploadTime: Long,
 )

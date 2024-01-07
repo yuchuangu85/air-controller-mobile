@@ -3,7 +3,7 @@ package com.youngfeng.android.assistant.model
 class Device(
     var name: String,
     var ip: String,
-    var platform: Int
+    var platform: Int,
 ) {
     companion object {
         const val PLATFORM_MACOS = 3

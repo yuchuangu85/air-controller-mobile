@@ -11,7 +11,6 @@ import java.util.Arrays
 import java.util.Vector
 
 object MD5Helper {
-
     private fun calcMD5HashForDir(dirToHash: File, includeHiddenFiles: Boolean): String? {
         val fileStreams: Vector<FileInputStream> = Vector<FileInputStream>()
         Timber.d("Found files for hashing:")
@@ -29,7 +28,7 @@ object MD5Helper {
     private fun collectInputStreams(
         dir: File,
         foundStreams: MutableList<FileInputStream>,
-        includeHiddenFiles: Boolean
+        includeHiddenFiles: Boolean,
     ) {
         val fileList: Array<File> = dir.listFiles()
         Arrays.sort(fileList)

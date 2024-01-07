@@ -7,5 +7,5 @@ data class VideoEntity(
     var duration: Long,
     var size: Long,
     var createTime: Long,
-    var lastModifyTime: Long
+    var lastModifyTime: Long,
 )

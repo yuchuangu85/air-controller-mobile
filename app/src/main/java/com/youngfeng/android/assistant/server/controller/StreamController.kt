@@ -58,7 +58,7 @@ class StreamController {
     fun imageThumbnail(
         @PathVariable("id") id: Long,
         @PathVariable("width") width: Int,
-        @PathVariable("height") height: Int
+        @PathVariable("height") height: Int,
     ): Bitmap {
         val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -67,7 +67,7 @@ class StreamController {
             MediaStore.Images.Thumbnails.getThumbnail(
                 mContext.contentResolver,
                 id,
-                MediaStore.Images.Thumbnails.MINI_KIND, null
+                MediaStore.Images.Thumbnails.MINI_KIND, null,
             )
         }
     }
@@ -76,7 +76,7 @@ class StreamController {
     fun videoThumbnail(
         @PathVariable("id") id: Long,
         @PathVariable("width") width: Int,
-        @PathVariable("height") height: Int
+        @PathVariable("height") height: Int,
     ): Bitmap {
         val uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -85,7 +85,7 @@ class StreamController {
             MediaStore.Images.Thumbnails.getThumbnail(
                 mContext.contentResolver,
                 id,
-                MediaStore.Images.Thumbnails.MINI_KIND, null
+                MediaStore.Images.Thumbnails.MINI_KIND, null,
             )
         }
     }
@@ -99,7 +99,7 @@ class StreamController {
             return RangeSupportResponseBody(
                 contentType = MediaType("audio", file.extension),
                 file = file,
-                rangeHeader = rangeHeader
+                rangeHeader = rangeHeader,
             ).attachToResponse(response)
         } else if (file.isVideo) {
             val rangeHeader = request.getHeader("Range")
@@ -107,7 +107,7 @@ class StreamController {
             return RangeSupportResponseBody(
                 contentType = MediaType("video", file.extension),
                 file = file,
-                rangeHeader = rangeHeader
+                rangeHeader = rangeHeader,
             ).attachToResponse(response)
         }
 
@@ -153,7 +153,7 @@ class StreamController {
     fun imageThumbnail2(
         @QueryParam("path") path: String,
         @QueryParam("width") width: Int,
-        @QueryParam("height") height: Int
+        @QueryParam("height") height: Int,
     ): Bitmap? {
         val image = PhotoUtil.findImageByPath(mContext, path)
         image?.apply {
@@ -164,7 +164,7 @@ class StreamController {
                 MediaStore.Images.Thumbnails.getThumbnail(
                     mContext.contentResolver,
                     this.id.toLong(),
-                    MediaStore.Images.Thumbnails.MINI_KIND, null
+                    MediaStore.Images.Thumbnails.MINI_KIND, null,
                 )
             }
         }
@@ -176,7 +176,7 @@ class StreamController {
     fun videoThumbnail2(
         @QueryParam("path") path: String,
         @QueryParam("width") width: Int,
-        @QueryParam("height") height: Int
+        @QueryParam("height") height: Int,
     ): Bitmap? {
         val videoEntity = VideoUtil.findByPath(mContext, path)
         videoEntity?.apply {
@@ -187,7 +187,7 @@ class StreamController {
                 MediaStore.Images.Thumbnails.getThumbnail(
                     mContext.contentResolver,
                     id,
-                    MediaStore.Images.Thumbnails.MINI_KIND, null
+                    MediaStore.Images.Thumbnails.MINI_KIND, null,
                 )
             }
         }
@@ -234,15 +234,16 @@ class StreamController {
                     val zipFile = ZipFile("${zipTempFolder}/${name}.zip")
                     zipFile.addFolder(file)
 
-                    val record = ZipFileRecord(
-                        name = name,
-                        path = zipFile.file.path,
-                        md5 = MD5Helper.md5(zipFile.file),
-                        originalFilesMD5 = MD5Helper.md5(file),
-                        originalPathsMD5 = MD5Helper.md5(file.path),
-                        createTime = System.currentTimeMillis(),
-                        isMultiOriginalFile = false
-                    )
+                    val record =
+                        ZipFileRecord(
+                            name = name,
+                            path = zipFile.file.path,
+                            md5 = MD5Helper.md5(zipFile.file),
+                            originalFilesMD5 = MD5Helper.md5(file),
+                            originalPathsMD5 = MD5Helper.md5(file.path),
+                            createTime = System.currentTimeMillis(),
+                            isMultiOriginalFile = false,
+                        )
 
                     zipFileRecordDao.insert(record)
 
@@ -308,15 +309,16 @@ class StreamController {
                     originalFilesMD5Json[file.absolutePath] = MD5Helper.md5(file)
                 }
 
-                val record = ZipFileRecord(
-                    name = name,
-                    path = zipFile.file.path,
-                    md5 = MD5Helper.md5(zipFile.file),
-                    originalFilesMD5 = mGson.toJson(originalFilesMD5Json),
-                    originalPathsMD5 = sortedOriginalPathsMD5,
-                    createTime = System.currentTimeMillis(),
-                    isMultiOriginalFile = true
-                )
+                val record =
+                    ZipFileRecord(
+                        name = name,
+                        path = zipFile.file.path,
+                        md5 = MD5Helper.md5(zipFile.file),
+                        originalFilesMD5 = mGson.toJson(originalFilesMD5Json),
+                        originalPathsMD5 = sortedOriginalPathsMD5,
+                        createTime = System.currentTimeMillis(),
+                        isMultiOriginalFile = true,
+                    )
 
                 zipFileRecordDao.insert(record)
 
@@ -420,15 +422,16 @@ class StreamController {
             originalFilesMD5Json[it] = MD5Helper.md5(newApkFile)
         }
 
-        val record = ZipFileRecord(
-            name = name,
-            path = zipFile.file.path,
-            md5 = MD5Helper.md5(zipFile.file),
-            originalFilesMD5 = mGson.toJson(originalFilesMD5Json),
-            originalPathsMD5 = sortedOriginalPackagesMD5,
-            createTime = System.currentTimeMillis(),
-            isMultiOriginalFile = true
-        )
+        val record =
+            ZipFileRecord(
+                name = name,
+                path = zipFile.file.path,
+                md5 = MD5Helper.md5(zipFile.file),
+                originalFilesMD5 = mGson.toJson(originalFilesMD5Json),
+                originalPathsMD5 = sortedOriginalPackagesMD5,
+                createTime = System.currentTimeMillis(),
+                isMultiOriginalFile = true,
+            )
 
         zipFileRecordDao.insert(record)
 

@@ -6,14 +6,14 @@ import com.youngfeng.android.assistant.server.entity.VideoEntity
 import com.youngfeng.android.assistant.server.entity.VideoFolder
 
 object VideoUtil {
-
     fun getAllVideoFolders(context: Context): List<VideoFolder> {
-        val projection = arrayOf(
-            MediaStore.Video.VideoColumns._ID,
-            MediaStore.Video.VideoColumns.BUCKET_ID,
-            MediaStore.Video.VideoColumns.DATA,
-            MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Video.VideoColumns._ID,
+                MediaStore.Video.VideoColumns.BUCKET_ID,
+                MediaStore.Video.VideoColumns.DATA,
+                MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME,
+            )
 
         val orderBy = "${MediaStore.Video.VideoColumns.DATE_TAKEN} DESC"
         val map = mutableMapOf<String, VideoFolder>()
@@ -24,7 +24,7 @@ object VideoUtil {
             null,
             null,
             orderBy,
-            null
+            null,
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val bucketIdIndex =
@@ -38,27 +38,29 @@ object VideoUtil {
                 do {
                     val bucketId = cursor.getString(bucketIdIndex)
 
-                    val album = map[bucketId] ?: let {
-                        val bucketName = cursor.getString(bucketNameIndex)
-                        val videoId = cursor.getLong(idIndex)
-                        val videoPath = cursor.getString(videoUriIndex);
+                    val album =
+                        map[bucketId] ?: let {
+                            val bucketName = cursor.getString(bucketNameIndex)
+                            val videoId = cursor.getLong(idIndex)
+                            val videoPath = cursor.getString(videoUriIndex);
 
-                        var folder = videoPath
-                        val index = folder.lastIndexOf("/")
-                        if (index != -1) {
-                            folder = folder.substring(0, index)
+                            var folder = videoPath
+                            val index = folder.lastIndexOf("/")
+                            if (index != -1) {
+                                folder = folder.substring(0, index)
+                            }
+
+                            val album =
+                                VideoFolder(
+                                    id = bucketId,
+                                    name = bucketName ?: "Unknown folder",
+                                    coverVideoId = videoId,
+                                    path = folder,
+                                )
+                            map[bucketId] = album
+
+                            album
                         }
-
-                        val album = VideoFolder(
-                            id = bucketId,
-                            name = bucketName ?: "Unknown folder",
-                            coverVideoId = videoId,
-                            path = folder
-                        )
-                        map[bucketId] = album
-
-                        album
-                    }
 
                     album.videoCount++
                 } while (cursor.moveToNext())
@@ -69,15 +71,16 @@ object VideoUtil {
     }
 
     fun getVideosByFolderId(context: Context, folderId: String): List<VideoEntity> {
-        val projection = arrayOf(
-            MediaStore.Video.VideoColumns._ID,
-            MediaStore.Video.VideoColumns.DISPLAY_NAME,
-            MediaStore.Video.VideoColumns.DATA,
-            MediaStore.Video.VideoColumns.DURATION,
-            MediaStore.Video.VideoColumns.SIZE,
-            MediaStore.Video.VideoColumns.DATE_ADDED,
-            MediaStore.Video.VideoColumns.DATE_MODIFIED
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Video.VideoColumns._ID,
+                MediaStore.Video.VideoColumns.DISPLAY_NAME,
+                MediaStore.Video.VideoColumns.DATA,
+                MediaStore.Video.VideoColumns.DURATION,
+                MediaStore.Video.VideoColumns.SIZE,
+                MediaStore.Video.VideoColumns.DATE_ADDED,
+                MediaStore.Video.VideoColumns.DATE_MODIFIED,
+            )
 
         val selection = "${MediaStore.Video.VideoColumns.BUCKET_ID} = ?"
         val selectionArgs = arrayOf(folderId)
@@ -89,7 +92,7 @@ object VideoUtil {
             projection,
             selection,
             selectionArgs,
-            null
+            null,
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val idIndex = cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)
@@ -118,8 +121,8 @@ object VideoUtil {
                             duration = duration,
                             size = size,
                             createTime = createTime,
-                            lastModifyTime = modifyTime
-                        )
+                            lastModifyTime = modifyTime,
+                        ),
                     )
                 } while (cursor.moveToNext())
             }
@@ -129,15 +132,16 @@ object VideoUtil {
     }
 
     fun getAllVideos(context: Context): List<VideoEntity> {
-        val projection = arrayOf(
-            MediaStore.Video.VideoColumns._ID,
-            MediaStore.Video.VideoColumns.DISPLAY_NAME,
-            MediaStore.Video.VideoColumns.DATA,
-            MediaStore.Video.VideoColumns.DURATION,
-            MediaStore.Video.VideoColumns.SIZE,
-            MediaStore.Video.VideoColumns.DATE_ADDED,
-            MediaStore.Video.VideoColumns.DATE_MODIFIED
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Video.VideoColumns._ID,
+                MediaStore.Video.VideoColumns.DISPLAY_NAME,
+                MediaStore.Video.VideoColumns.DATA,
+                MediaStore.Video.VideoColumns.DURATION,
+                MediaStore.Video.VideoColumns.SIZE,
+                MediaStore.Video.VideoColumns.DATE_ADDED,
+                MediaStore.Video.VideoColumns.DATE_MODIFIED,
+            )
 
         val videos = mutableListOf<VideoEntity>()
 
@@ -146,7 +150,7 @@ object VideoUtil {
             projection,
             null,
             null,
-            null
+            null,
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val idIndex = cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)
@@ -175,8 +179,8 @@ object VideoUtil {
                             duration = duration,
                             size = size,
                             createTime = createTime,
-                            lastModifyTime = modifyTime
-                        )
+                            lastModifyTime = modifyTime,
+                        ),
                     )
                 } while (cursor.moveToNext())
             }
@@ -186,15 +190,16 @@ object VideoUtil {
     }
 
     fun findById(context: Context, id: String): VideoEntity? {
-        val projection = arrayOf(
-            MediaStore.Video.VideoColumns._ID,
-            MediaStore.Video.VideoColumns.DISPLAY_NAME,
-            MediaStore.Video.VideoColumns.DATA,
-            MediaStore.Video.VideoColumns.DURATION,
-            MediaStore.Video.VideoColumns.SIZE,
-            MediaStore.Video.VideoColumns.DATE_ADDED,
-            MediaStore.Video.VideoColumns.DATE_MODIFIED
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Video.VideoColumns._ID,
+                MediaStore.Video.VideoColumns.DISPLAY_NAME,
+                MediaStore.Video.VideoColumns.DATA,
+                MediaStore.Video.VideoColumns.DURATION,
+                MediaStore.Video.VideoColumns.SIZE,
+                MediaStore.Video.VideoColumns.DATE_ADDED,
+                MediaStore.Video.VideoColumns.DATE_MODIFIED,
+            )
 
         val videos = mutableListOf<VideoEntity>()
         val selection = "${MediaStore.Video.VideoColumns._ID} = ?"
@@ -205,7 +210,7 @@ object VideoUtil {
             projection,
             selection,
             selectionArgs,
-            null
+            null,
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val idIndex = cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)
@@ -232,7 +237,7 @@ object VideoUtil {
                     duration = duration,
                     size = size,
                     createTime = createTime,
-                    lastModifyTime = modifyTime
+                    lastModifyTime = modifyTime,
                 )
             }
         }
@@ -241,15 +246,16 @@ object VideoUtil {
     }
 
     fun findByPath(context: Context, videoPath: String): VideoEntity? {
-        val projection = arrayOf(
-            MediaStore.Video.VideoColumns._ID,
-            MediaStore.Video.VideoColumns.DISPLAY_NAME,
-            MediaStore.Video.VideoColumns.DATA,
-            MediaStore.Video.VideoColumns.DURATION,
-            MediaStore.Video.VideoColumns.SIZE,
-            MediaStore.Video.VideoColumns.DATE_ADDED,
-            MediaStore.Video.VideoColumns.DATE_MODIFIED
-        )
+        val projection =
+            arrayOf(
+                MediaStore.Video.VideoColumns._ID,
+                MediaStore.Video.VideoColumns.DISPLAY_NAME,
+                MediaStore.Video.VideoColumns.DATA,
+                MediaStore.Video.VideoColumns.DURATION,
+                MediaStore.Video.VideoColumns.SIZE,
+                MediaStore.Video.VideoColumns.DATE_ADDED,
+                MediaStore.Video.VideoColumns.DATE_MODIFIED,
+            )
 
         val videos = mutableListOf<VideoEntity>()
         val selection = "${MediaStore.Video.VideoColumns.DATA} = ?"
@@ -260,7 +266,7 @@ object VideoUtil {
             projection,
             selection,
             selectionArgs,
-            null
+            null,
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
                 val idIndex = cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)
@@ -287,7 +293,7 @@ object VideoUtil {
                     duration = duration,
                     size = size,
                     createTime = createTime,
-                    lastModifyTime = modifyTime
+                    lastModifyTime = modifyTime,
                 )
             }
         }

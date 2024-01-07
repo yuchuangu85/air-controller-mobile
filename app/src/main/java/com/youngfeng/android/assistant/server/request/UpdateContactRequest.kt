@@ -14,5 +14,5 @@ data class UpdateContactRequest(
     val ims: List<ContactFieldItem>? = null,
     val addresses: List<ContactFieldItem>? = null,
     val relations: List<ContactFieldItem>? = null,
-    val note: String? = null
+    val note: String? = null,
 )

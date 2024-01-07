@@ -25,7 +25,6 @@ import contacts.core.equalTo
 import contacts.core.util.toRawContact
 
 object ContactUtil {
-
     fun getAllContacts(context: Context): List<ContactBasicInfo> =
         Contacts(context).query().orderBy(ContactsFields.DisplayNamePrimary.asc()).find()
             .flatMap { it.rawContacts }
@@ -34,10 +33,11 @@ object ContactUtil {
                     id = rawContact.id,
                     contactId = rawContact.contactId,
                     displayNamePrimary = rawContact.name?.displayName,
-                    phoneNumber = rawContact.phones.sortedByDescending { it.isSuperPrimary }
+                    phoneNumber =
+                    rawContact.phones.sortedByDescending { it.isSuperPrimary }
                         .sortedByDescending { it.isPrimary }
                         .map { it.number }
-                        .joinToString(separator = ",")
+                        .joinToString(separator = ","),
                 )
             }
 
@@ -45,24 +45,26 @@ object ContactUtil {
         val contacts = Contacts(context)
 
         return contacts.accounts().query().find().map { account ->
-            val groups = contacts.groups().query().accounts(account).find().map { group ->
-                ContactGroup(
-                    id = group.id,
-                    title = group.title,
-                    count = -1
-                )
-            }
+            val groups =
+                contacts.groups().query().accounts(account).find().map { group ->
+                    ContactGroup(
+                        id = group.id,
+                        title = group.title,
+                        count = -1,
+                    )
+                }
 
             ContactAccountInfo(
-                account = ContactAccount(
+                account =
+                ContactAccount(
                     name = account.name,
-                    type = account.type
+                    type = account.type,
                 ),
-                groups = groups
+                groups = groups,
             )
         }.let {
             ContactAndGroups(
-                accounts = it
+                accounts = it,
             )
         }
     }
@@ -76,10 +78,11 @@ object ContactUtil {
                     id = rawContact.id,
                     contactId = rawContact.contactId,
                     displayNamePrimary = rawContact.name?.displayName,
-                    phoneNumber = rawContact.phones.sortedByDescending { it.isSuperPrimary }
+                    phoneNumber =
+                    rawContact.phones.sortedByDescending { it.isSuperPrimary }
                         .sortedByDescending { it.isPrimary }
                         .map { it.number }
-                        .joinToString(separator = ",")
+                        .joinToString(separator = ","),
                 )
             }
 
@@ -91,10 +94,11 @@ object ContactUtil {
                     id = rawContact.id,
                     contactId = rawContact.contactId,
                     displayNamePrimary = rawContact.name?.displayName,
-                    phoneNumber = rawContact.phones.sortedByDescending { it.isSuperPrimary }
+                    phoneNumber =
+                    rawContact.phones.sortedByDescending { it.isSuperPrimary }
                         .sortedByDescending { it.isPrimary }
                         .map { it.number }
-                        .joinToString(separator = ",")
+                        .joinToString(separator = ","),
                 )
             }
 
@@ -108,121 +112,133 @@ object ContactUtil {
     fun convertToContactDetail(context: Context, rawContact: RawContact): ContactDetail {
         val contacts = Contacts(context)
 
-        val phones = rawContact.phones.map { phone ->
-            val phoneType = phone.type?.let {
-                ContactDataType(
-                    value = it.value,
-                    typeLabel = it.labelStr(context.resources, null),
-                    isUserCustomType = !PhoneEntity.Type.values().contains(it),
-                    isSystemCustomType = it == PhoneEntity.Type.CUSTOM
+        val phones =
+            rawContact.phones.map { phone ->
+                val phoneType =
+                    phone.type?.let {
+                        ContactDataType(
+                            value = it.value,
+                            typeLabel = it.labelStr(context.resources, null),
+                            isUserCustomType = !PhoneEntity.Type.values().contains(it),
+                            isSystemCustomType = it == PhoneEntity.Type.CUSTOM,
+                        )
+                    }
+
+                ContactFieldItem(
+                    id = phone.id,
+                    type = phoneType,
+                    value = phone.number,
                 )
             }
 
-            ContactFieldItem(
-                id = phone.id,
-                type = phoneType,
-                value = phone.number,
-            )
-        }
+        val emails =
+            rawContact.emails.map { email ->
+                val emailType =
+                    email.type?.let {
+                        ContactDataType(
+                            value = it.value,
+                            typeLabel = it.labelStr(context.resources, null),
+                            isUserCustomType = !EmailEntity.Type.values().contains(it),
+                            isSystemCustomType = it == EmailEntity.Type.CUSTOM,
+                        )
+                    }
 
-        val emails = rawContact.emails.map { email ->
-            val emailType = email.type?.let {
-                ContactDataType(
-                    value = it.value,
-                    typeLabel = it.labelStr(context.resources, null),
-                    isUserCustomType = !EmailEntity.Type.values().contains(it),
-                    isSystemCustomType = it == EmailEntity.Type.CUSTOM
+                ContactFieldItem(
+                    id = email.id,
+                    type = emailType,
+                    value = email.address,
                 )
             }
 
-            ContactFieldItem(
-                id = email.id,
-                type = emailType,
-                value = email.address,
-            )
-        }
+        val addresses =
+            rawContact.addresses.map { address ->
+                val addressType =
+                    address.type?.let {
+                        ContactDataType(
+                            value = it.value,
+                            typeLabel = it.labelStr(context.resources, null),
+                            isUserCustomType = !AddressEntity.Type.values().contains(it),
+                            isSystemCustomType = it == AddressEntity.Type.CUSTOM,
+                        )
+                    }
 
-        val addresses = rawContact.addresses.map { address ->
-            val addressType = address.type?.let {
-                ContactDataType(
-                    value = it.value,
-                    typeLabel = it.labelStr(context.resources, null),
-                    isUserCustomType = !AddressEntity.Type.values().contains(it),
-                    isSystemCustomType = it == AddressEntity.Type.CUSTOM
+                ContactFieldItem(
+                    id = address.id,
+                    type = addressType,
+                    value = address.formattedAddress,
                 )
             }
 
-            ContactFieldItem(
-                id = address.id,
-                type = addressType,
-                value = address.formattedAddress,
-            )
-        }
+        val ims =
+            rawContact.ims.map { im ->
+                val imType =
+                    im.type?.let {
+                        ContactDataType(
+                            value = it.value,
+                            typeLabel = it.labelStr(context.resources, null),
+                            isUserCustomType = !ImEntity.Protocol.values().contains(it),
+                            isSystemCustomType = it == ImEntity.Protocol.CUSTOM,
+                        )
+                    }
 
-        val ims = rawContact.ims.map { im ->
-            val imType = im.type?.let {
-                ContactDataType(
-                    value = it.value,
-                    typeLabel = it.labelStr(context.resources, null),
-                    isUserCustomType = !ImEntity.Protocol.values().contains(it),
-                    isSystemCustomType = it == ImEntity.Protocol.CUSTOM
+                ContactFieldItem(
+                    id = im.id,
+                    type = imType,
+                    value = im.data,
                 )
             }
 
-            ContactFieldItem(
-                id = im.id,
-                type = imType,
-                value = im.data,
-            )
-        }
+        val relations =
+            rawContact.relations.map { relation ->
+                val relationType =
+                    relation.type?.let {
+                        ContactDataType(
+                            value = it.value,
+                            typeLabel = it.labelStr(context.resources, null),
+                            isUserCustomType = !RelationEntity.Type.values().contains(it),
+                            isSystemCustomType = it == RelationEntity.Type.CUSTOM,
+                        )
+                    }
 
-        val relations = rawContact.relations.map { relation ->
-            val relationType = relation.type?.let {
-                ContactDataType(
-                    value = it.value,
-                    typeLabel = it.labelStr(context.resources, null),
-                    isUserCustomType = !RelationEntity.Type.values().contains(it),
-                    isSystemCustomType = it == RelationEntity.Type.CUSTOM
+                ContactFieldItem(
+                    id = relation.id,
+                    type = relationType,
+                    value = relation.name,
                 )
             }
-
-            ContactFieldItem(
-                id = relation.id,
-                type = relationType,
-                value = relation.name,
-            )
-        }
 
         val accounts =
             contacts.accounts(rawContact.isProfile).query().associatedWith(rawContact).find()
                 .map {
                     ContactAccount(
                         name = it.name,
-                        type = it.type
+                        type = it.type,
                     )
                 }
 
-        val groups = rawContact.groupMemberships.map { groupMembership ->
-            contacts.groups().query()
-                .where { GroupsFields.Id equalTo (groupMembership.groupId ?: -1L) }.find().first()
-                .let {
-                    ContactGroup(
-                        id = it.id,
-                        title = it.title,
-                        count = -1
-                    )
-                }
-        }
+        val groups =
+            rawContact.groupMemberships.map { groupMembership ->
+                contacts.groups().query()
+                    .where { GroupsFields.Id equalTo (groupMembership.groupId ?: -1L) }.find().first()
+                    .let {
+                        ContactGroup(
+                            id = it.id,
+                            title = it.title,
+                            count = -1,
+                        )
+                    }
+            }
 
-        val note = rawContact.note?.let {
-            ContactNote(
-                id = it.id,
-                isPrimary = it.isPrimary,
-                isSuperPrimary = it.isSuperPrimary,
-                note = it.note,
-                contactId = it.contactId
-            )
-        }
+        val note =
+            rawContact.note?.let {
+                ContactNote(
+                    id = it.id,
+                    isPrimary = it.isPrimary,
+                    isSuperPrimary = it.isSuperPrimary,
+                    note = it.note,
+                    contactId = it.contactId,
+                )
+            }
 
         return ContactDetail(
             id = rawContact.id,
@@ -235,7 +251,7 @@ object ContactUtil {
             relations = relations,
             accounts = accounts,
             groups = groups,
-            note = note
+            note = note,
         )
     }
 }

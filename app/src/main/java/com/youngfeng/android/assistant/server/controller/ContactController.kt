@@ -70,16 +70,16 @@ class ContactController {
         if (!EasyPermissions.hasPermissions(
                 mContext,
                 Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
             )
         ) {
             EventBus.getDefault().post(
                 RequestPermissionsEvent(
                     arrayOf(
                         Permission.GetAccounts,
-                        Permission.ReadContacts
-                    )
-                )
+                        Permission.ReadContacts,
+                    ),
+                ),
             )
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
@@ -101,20 +101,22 @@ class ContactController {
 
     @ResponseBody
     @PostMapping("/contactsByAccount")
-    fun getContactsByAccount(@RequestBody request: GetContactsByAccountRequest): HttpResponseEntity<List<ContactBasicInfo>> {
+    fun getContactsByAccount(
+        @RequestBody request: GetContactsByAccountRequest,
+    ): HttpResponseEntity<List<ContactBasicInfo>> {
         if (!EasyPermissions.hasPermissions(
                 mContext,
                 Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
             )
         ) {
             EventBus.getDefault().post(
                 RequestPermissionsEvent(
                     arrayOf(
                         Permission.GetAccounts,
-                        Permission.ReadContacts
-                    )
-                )
+                        Permission.ReadContacts,
+                    ),
+                ),
             )
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
@@ -129,16 +131,16 @@ class ContactController {
         if (!EasyPermissions.hasPermissions(
                 mContext,
                 Manifest.permission.GET_ACCOUNTS,
-                Manifest.permission.READ_CONTACTS
+                Manifest.permission.READ_CONTACTS,
             )
         ) {
             EventBus.getDefault().post(
                 RequestPermissionsEvent(
                     arrayOf(
                         Permission.GetAccounts,
-                        Permission.ReadContacts
-                    )
-                )
+                        Permission.ReadContacts,
+                    ),
+                ),
             )
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
@@ -167,50 +169,55 @@ class ContactController {
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
 
-        val phoneTypes = PhoneTypeFactory.systemTypes(mContext.resources).map {
-            ContactDataType(
-                value = it.type.value,
-                typeLabel = it.typeLabel,
-                isUserCustomType = it.isUserCustomType,
-                isSystemCustomType = it.isSystemCustomType
-            )
-        }
+        val phoneTypes =
+            PhoneTypeFactory.systemTypes(mContext.resources).map {
+                ContactDataType(
+                    value = it.type.value,
+                    typeLabel = it.typeLabel,
+                    isUserCustomType = it.isUserCustomType,
+                    isSystemCustomType = it.isSystemCustomType,
+                )
+            }
 
-        val emailTypes = EmailTypeFactory.systemTypes(mContext.resources).map {
-            ContactDataType(
-                value = it.type.value,
-                typeLabel = it.typeLabel,
-                isUserCustomType = it.isUserCustomType,
-                isSystemCustomType = it.isSystemCustomType
-            )
-        }
+        val emailTypes =
+            EmailTypeFactory.systemTypes(mContext.resources).map {
+                ContactDataType(
+                    value = it.type.value,
+                    typeLabel = it.typeLabel,
+                    isUserCustomType = it.isUserCustomType,
+                    isSystemCustomType = it.isSystemCustomType,
+                )
+            }
 
-        val addressTypes = AddressTypeFactory.systemTypes(mContext.resources).map {
-            ContactDataType(
-                value = it.type.value,
-                typeLabel = it.typeLabel,
-                isUserCustomType = it.isUserCustomType,
-                isSystemCustomType = it.isSystemCustomType
-            )
-        }
+        val addressTypes =
+            AddressTypeFactory.systemTypes(mContext.resources).map {
+                ContactDataType(
+                    value = it.type.value,
+                    typeLabel = it.typeLabel,
+                    isUserCustomType = it.isUserCustomType,
+                    isSystemCustomType = it.isSystemCustomType,
+                )
+            }
 
-        val imTypes = ImsTypeFactory.systemTypes(mContext.resources).map {
-            ContactDataType(
-                value = it.type.value,
-                typeLabel = it.typeLabel,
-                isUserCustomType = it.isUserCustomType,
-                isSystemCustomType = it.isSystemCustomType
-            )
-        }
+        val imTypes =
+            ImsTypeFactory.systemTypes(mContext.resources).map {
+                ContactDataType(
+                    value = it.type.value,
+                    typeLabel = it.typeLabel,
+                    isUserCustomType = it.isUserCustomType,
+                    isSystemCustomType = it.isSystemCustomType,
+                )
+            }
 
-        val relationTypes = RelationTypeFactory.systemTypes(mContext.resources).map {
-            ContactDataType(
-                value = it.type.value,
-                typeLabel = it.typeLabel,
-                isUserCustomType = it.isUserCustomType,
-                isSystemCustomType = it.isSystemCustomType
-            )
-        }
+        val relationTypes =
+            RelationTypeFactory.systemTypes(mContext.resources).map {
+                ContactDataType(
+                    value = it.type.value,
+                    typeLabel = it.typeLabel,
+                    isUserCustomType = it.isUserCustomType,
+                    isSystemCustomType = it.isSystemCustomType,
+                )
+            }
 
         return HttpResponseEntity.success(
             ContactDataTypeMap(
@@ -218,16 +225,14 @@ class ContactController {
                 email = emailTypes,
                 address = addressTypes,
                 im = imTypes,
-                relation = relationTypes
-            )
+                relation = relationTypes,
+            ),
         )
     }
 
     @ResponseBody
     @PostMapping("/createNewContact")
-    fun createNewContact(
-        @RequestBody request: CreateNewContactRequest
-    ): HttpResponseEntity<ContactDetail> {
+    fun createNewContact(@RequestBody request: CreateNewContactRequest): HttpResponseEntity<ContactDetail> {
         if (!EasyPermissions.hasPermissions(mContext, Manifest.permission.WRITE_CONTACTS)) {
             EventBus.getDefault().post(RequestPermissionsEvent(arrayOf(Permission.WriteContacts)))
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
@@ -247,111 +252,123 @@ class ContactController {
                     .firstOrNull()
 
             if (null != contactsGroup) {
-                rawContact.groupMemberships = mutableListOf(
-                    contactsGroup.newMembership()
-                )
+                rawContact.groupMemberships =
+                    mutableListOf(
+                        contactsGroup.newMembership(),
+                    )
             }
         }
 
         val phones = request.phones
         if (null != phones && phones.isNotEmpty()) {
-            rawContact.phones = phones.map { fieldItem ->
-                NewPhone(
-                    type = PhoneEntity.Type.values()
-                        .firstOrNull { it.value == fieldItem.type?.value },
-                    label = fieldItem.type?.typeLabel,
-                    number = fieldItem.value,
-                    normalizedNumber = fieldItem.value
-                )
-            }.toMutableList()
+            rawContact.phones =
+                phones.map { fieldItem ->
+                    NewPhone(
+                        type =
+                        PhoneEntity.Type.values()
+                            .firstOrNull { it.value == fieldItem.type?.value },
+                        label = fieldItem.type?.typeLabel,
+                        number = fieldItem.value,
+                        normalizedNumber = fieldItem.value,
+                    )
+                }.toMutableList()
         }
 
         val emails = request.emails
         if (null != emails && emails.isNotEmpty()) {
-            rawContact.emails = emails.map { fieldItem ->
-                NewEmail(
-                    type = EmailEntity.Type.values()
-                        .firstOrNull { it.value == fieldItem.type?.value },
-                    label = fieldItem.type?.typeLabel,
-                    address = fieldItem.value,
-                )
-            }.toMutableList()
+            rawContact.emails =
+                emails.map { fieldItem ->
+                    NewEmail(
+                        type =
+                        EmailEntity.Type.values()
+                            .firstOrNull { it.value == fieldItem.type?.value },
+                        label = fieldItem.type?.typeLabel,
+                        address = fieldItem.value,
+                    )
+                }.toMutableList()
         }
 
         val ims = request.ims
         if (null != ims && ims.isNotEmpty()) {
-            rawContact.ims = ims.map { fieldItem ->
-                NewIm(
-                    protocol = ImEntity.Protocol.values()
-                        .firstOrNull { it.value == fieldItem.type?.value },
-                    data = fieldItem.value,
-                )
-            }.toMutableList()
+            rawContact.ims =
+                ims.map { fieldItem ->
+                    NewIm(
+                        protocol =
+                        ImEntity.Protocol.values()
+                            .firstOrNull { it.value == fieldItem.type?.value },
+                        data = fieldItem.value,
+                    )
+                }.toMutableList()
         }
 
         val addresses = request.addresses
         if (null != addresses && addresses.isNotEmpty()) {
-            rawContact.addresses = addresses.map { fieldItem ->
-                NewAddress(
-                    type = AddressEntity.Type.values()
-                        .firstOrNull { it.value == fieldItem.type?.value },
-                    label = fieldItem.type?.typeLabel,
-                    formattedAddress = fieldItem.value,
-                )
-            }.toMutableList()
+            rawContact.addresses =
+                addresses.map { fieldItem ->
+                    NewAddress(
+                        type =
+                        AddressEntity.Type.values()
+                            .firstOrNull { it.value == fieldItem.type?.value },
+                        label = fieldItem.type?.typeLabel,
+                        formattedAddress = fieldItem.value,
+                    )
+                }.toMutableList()
         }
 
         val relations = request.relations
         if (null != relations && relations.isNotEmpty()) {
-            rawContact.relations = relations.map { fieldItem ->
-                NewRelation(
-                    type = RelationEntity.Type.values()
-                        .firstOrNull { it.value == fieldItem.type?.value },
-                    label = fieldItem.type?.typeLabel,
-                    name = fieldItem.value,
-                )
-            }.toMutableList()
+            rawContact.relations =
+                relations.map { fieldItem ->
+                    NewRelation(
+                        type =
+                        RelationEntity.Type.values()
+                            .firstOrNull { it.value == fieldItem.type?.value },
+                        label = fieldItem.type?.typeLabel,
+                        name = fieldItem.value,
+                    )
+                }.toMutableList()
         }
 
         val note = request.note
 
         note?.apply {
-            rawContact.note = NewNote(
-                note = this
-            )
+            rawContact.note =
+                NewNote(
+                    note = this,
+                )
         }
 
         val account = request.account
 
         var newAccount: Account? = null
         account?.apply {
-            newAccount = Account(
-                this.name, this.type
-            )
+            newAccount =
+                Account(
+                    this.name, this.type,
+                )
         }
 
-        val newContact = contacts.insert()
-            .allowBlanks(true)
-            .forAccount(newAccount)
-            .rawContacts(rawContact)
-            .commit()
-            .contact(contacts, rawContact)
-            ?: return ErrorBuilder().module(HttpModule.ContactModule)
-                .error(HttpError.CreateContactFailure).build()
+        val newContact =
+            contacts.insert()
+                .allowBlanks(true)
+                .forAccount(newAccount)
+                .rawContacts(rawContact)
+                .commit()
+                .contact(contacts, rawContact)
+                ?: return ErrorBuilder().module(HttpModule.ContactModule)
+                    .error(HttpError.CreateContactFailure).build()
 
         return HttpResponseEntity.success(
             ContactUtil.convertToContactDetail(
                 mContext,
-                newContact.rawContacts.first()
-            )
+                newContact.rawContacts.first(),
+            ),
         )
     }
 
     @ResponseBody
     @PostMapping("/uploadPhotoAndNewContract")
-    fun uploadPhotoAndNewContact(
-        @RequestParam("avatar") avatar: MultipartFile
-    ): HttpResponseEntity<ContactDetail> {
+    fun uploadPhotoAndNewContact(@RequestParam("avatar") avatar: MultipartFile): HttpResponseEntity<ContactDetail> {
         if (!EasyPermissions.hasPermissions(mContext, Manifest.permission.WRITE_CONTACTS)) {
             EventBus.getDefault().post(RequestPermissionsEvent(arrayOf(Permission.WriteContacts)))
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
@@ -363,14 +380,15 @@ class ContactController {
         val displayName = "User${System.currentTimeMillis()}"
         rawContact.name = NewName(displayName = displayName)
 
-        val newContact = contacts.insert()
-            .allowBlanks(true)
-            .forAccount(null)
-            .rawContacts(rawContact)
-            .commit()
-            .contact(contacts, rawContact)
-            ?: return ErrorBuilder().module(HttpModule.ContactModule)
-                .error(HttpError.UploadPhotoAndNewContactFailure).build<ContactDetail>()
+        val newContact =
+            contacts.insert()
+                .allowBlanks(true)
+                .forAccount(null)
+                .rawContacts(rawContact)
+                .commit()
+                .contact(contacts, rawContact)
+                ?: return ErrorBuilder().module(HttpModule.ContactModule)
+                    .error(HttpError.UploadPhotoAndNewContactFailure).build<ContactDetail>()
 
         newContact.setPhoto(contacts, avatar.bytes)
 
@@ -378,8 +396,8 @@ class ContactController {
             ContactDetail(
                 id = newContact.rawContacts.first().id,
                 contactId = newContact.id,
-                displayNamePrimary = displayName
-            )
+                displayNamePrimary = displayName,
+            ),
         )
     }
 
@@ -387,7 +405,7 @@ class ContactController {
     @PostMapping("/updatePhotoForContact")
     fun updatePhotoForContact(
         @RequestParam("avatar") avatar: MultipartFile,
-        @RequestParam("id") id: Long
+        @RequestParam("id") id: Long,
     ): HttpResponseEntity<ContactDetail> {
         if (!EasyPermissions.hasPermissions(mContext, Manifest.permission.WRITE_CONTACTS)) {
             EventBus.getDefault().post(RequestPermissionsEvent(arrayOf(Permission.WriteContacts)))
@@ -401,10 +419,11 @@ class ContactController {
                 ?: return ErrorBuilder().module(HttpModule.ContactModule)
                     .error(HttpError.ContactNotFound).build()
 
-        val rawContact = blankRawContact.toRawContact(contacts) ?: return ErrorBuilder().module(
-            HttpModule.ContactModule
-        )
-            .error(HttpError.ContactNotFound).build()
+        val rawContact =
+            blankRawContact.toRawContact(contacts) ?: return ErrorBuilder().module(
+                HttpModule.ContactModule,
+            )
+                .error(HttpError.ContactNotFound).build()
 
         val isSuccess = rawContact.setPhoto(contacts, avatar.bytes)
 
@@ -412,7 +431,7 @@ class ContactController {
 
         return if (isSuccess) {
             HttpResponseEntity.success(
-                ContactUtil.convertToContactDetail(mContext, rawContact)
+                ContactUtil.convertToContactDetail(mContext, rawContact),
             )
         } else {
             ErrorBuilder().module(HttpModule.ContactModule)
@@ -422,9 +441,7 @@ class ContactController {
 
     @ResponseBody
     @PostMapping("/updateContact")
-    fun updateContact(
-        @RequestBody request: UpdateContactRequest
-    ): HttpResponseEntity<Any> {
+    fun updateContact(@RequestBody request: UpdateContactRequest): HttpResponseEntity<Any> {
         if (!EasyPermissions.hasPermissions(mContext, Manifest.permission.WRITE_CONTACTS)) {
             EventBus.getDefault().post(RequestPermissionsEvent(arrayOf(Permission.WriteContacts)))
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
@@ -441,7 +458,7 @@ class ContactController {
 
         val rawContact =
             blankRawContact.toRawContact(contacts)?.mutableCopy() ?: return ErrorBuilder().module(
-                HttpModule.ContactModule
+                HttpModule.ContactModule,
             )
                 .error(HttpError.RawContactNotFound).build()
 
@@ -459,16 +476,18 @@ class ContactController {
             val oldPhone = rawContact.phones.firstOrNull { it.idOrNull == phone.id }
 
             oldPhone?.apply {
-                type = PhoneEntity.Type.values()
-                    .firstOrNull { it.value == phone.type?.value }
+                type =
+                    PhoneEntity.Type.values()
+                        .firstOrNull { it.value == phone.type?.value }
                 number = phone.value
             }
                 ?: NewPhone(
-                    type = PhoneEntity.Type.values()
+                    type =
+                    PhoneEntity.Type.values()
                         .firstOrNull { it.value == phone.type?.value },
                     label = phone.type?.typeLabel,
                     number = phone.value,
-                    normalizedNumber = phone.value
+                    normalizedNumber = phone.value,
                 )
         }?.toMutableList() ?: mutableListOf()
 
@@ -476,12 +495,14 @@ class ContactController {
             val oldEmail = rawContact.emails.firstOrNull { it.idOrNull == email.id }
 
             oldEmail?.apply {
-                type = EmailEntity.Type.values()
-                    .firstOrNull { it.value == email.type?.value }
+                type =
+                    EmailEntity.Type.values()
+                        .firstOrNull { it.value == email.type?.value }
                 address = email.value
             }
                 ?: NewEmail(
-                    type = EmailEntity.Type.values()
+                    type =
+                    EmailEntity.Type.values()
                         .firstOrNull { it.value == email.type?.value },
                     label = email.type?.typeLabel,
                     address = email.value,
@@ -492,12 +513,14 @@ class ContactController {
             val oldAddress = rawContact.addresses.firstOrNull { it.idOrNull == address.id }
 
             oldAddress?.apply {
-                type = AddressEntity.Type.values()
-                    .firstOrNull { it.value == address.type?.value }
+                type =
+                    AddressEntity.Type.values()
+                        .firstOrNull { it.value == address.type?.value }
                 formattedAddress = address.value
             }
                 ?: NewAddress(
-                    type = AddressEntity.Type.values()
+                    type =
+                    AddressEntity.Type.values()
                         .firstOrNull { it.value == address.type?.value },
                     label = address.type?.typeLabel,
                     formattedAddress = address.value,
@@ -508,12 +531,14 @@ class ContactController {
             val oldIm = rawContact.ims.firstOrNull { it.idOrNull == im.id }
 
             oldIm?.apply {
-                type = ImEntity.Protocol.values()
-                    .firstOrNull { it.value == im.type?.value }
+                type =
+                    ImEntity.Protocol.values()
+                        .firstOrNull { it.value == im.type?.value }
                 data = im.value
             }
                 ?: NewIm(
-                    protocol = ImEntity.Protocol.values()
+                    protocol =
+                    ImEntity.Protocol.values()
                         .firstOrNull { it.value == im.type?.value },
                     data = im.value,
                 )
@@ -523,12 +548,14 @@ class ContactController {
             val oldRelation = rawContact.relations.firstOrNull { it.idOrNull == relation.id }
 
             oldRelation?.apply {
-                type = RelationEntity.Type.values()
-                    .firstOrNull { it.value == relation.type?.value }
+                type =
+                    RelationEntity.Type.values()
+                        .firstOrNull { it.value == relation.type?.value }
                 name = relation.value
             }
                 ?: NewRelation(
-                    type = RelationEntity.Type.values()
+                    type =
+                    RelationEntity.Type.values()
                         .firstOrNull { it.value == relation.type?.value },
                     name = relation.value,
                 )
@@ -536,9 +563,10 @@ class ContactController {
 
         request.note?.also { note ->
             rawContact.note?.apply { this.note = note } ?: run {
-                rawContact.note = NewNote(
-                    note = note
-                )
+                rawContact.note =
+                    NewNote(
+                        note = note,
+                    )
             }
         }
 
@@ -551,9 +579,10 @@ class ContactController {
             rawContact.groupMemberships = memberships
         }
 
-        val isSuccessful = contacts.update().rawContacts(rawContact)
-            .commit()
-            .isSuccessful
+        val isSuccessful =
+            contacts.update().rawContacts(rawContact)
+                .commit()
+                .isSuccessful
 
         if (!isSuccessful) {
             return ErrorBuilder().module(HttpModule.ContactModule)

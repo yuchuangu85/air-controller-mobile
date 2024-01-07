@@ -17,7 +17,7 @@ interface UploadFileRecordDao {
     @Query(
         """
         SELECT * FROM t_upload_file_record WHERE md5 = :md5
-    """
+    """,
     )
     fun findWithMd5(md5: String): List<UploadFileRecord>
 }

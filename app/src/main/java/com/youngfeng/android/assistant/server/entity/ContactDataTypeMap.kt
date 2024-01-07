@@ -5,5 +5,5 @@ data class ContactDataTypeMap(
     val email: List<ContactDataType>,
     val address: List<ContactDataType>,
     val im: List<ContactDataType>,
-    val relation: List<ContactDataType>
+    val relation: List<ContactDataType>,
 )

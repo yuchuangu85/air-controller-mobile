@@ -10,5 +10,5 @@ data class ImageEntity(
     var modifyTime: Long? = null,
     var createTime: Long? = null,
     var displayName: String? = null,
-    var size: Long? = null
+    var size: Long? = null,
 )

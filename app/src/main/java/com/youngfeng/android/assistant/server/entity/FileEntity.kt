@@ -6,5 +6,5 @@ data class FileEntity(
     var size: Long,
     var isDir: Boolean = false,
     var changeDate: Long,
-    var isEmpty: Boolean? = false
+    var isEmpty: Boolean? = false,
 )

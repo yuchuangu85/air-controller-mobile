@@ -21,7 +21,7 @@ interface HeartbeatClient {
             socket: Socket,
             config: HeartbeatConfig,
             onTimeout: (client: HeartbeatClient) -> Unit,
-            onPeerReset: (client: HeartbeatClient) -> Unit
+            onPeerReset: (client: HeartbeatClient) -> Unit,
         ) = HeartbeatClientImpl(socket, config, onTimeout, onPeerReset)
     }
 }
@@ -30,14 +30,15 @@ class HeartbeatClientImpl(
     private val socket: Socket,
     config: HeartbeatConfig,
     private val onTimeout: (client: HeartbeatClient) -> Unit,
-    private val onPeerReset: (client: HeartbeatClient) -> Unit
+    private val onPeerReset: (client: HeartbeatClient) -> Unit,
 ) : HeartbeatClient {
     private val mExecutors by lazy {
-        val executor = ThreadPoolExecutor(
-            4, 8,
-            Long.MAX_VALUE, TimeUnit.SECONDS,
-            SynchronousQueue()
-        )
+        val executor =
+            ThreadPoolExecutor(
+                4, 8,
+                Long.MAX_VALUE, TimeUnit.SECONDS,
+                SynchronousQueue(),
+            )
         executor.allowCoreThreadTimeOut(false)
         executor
     }
@@ -116,10 +117,11 @@ class HeartbeatClientImpl(
         mExecutors.submit {
             try {
                 val heartBeat = mGson.fromJson(msg, HeartBeat::class.java)
-                val respondHeartBeat = HeartBeat(
-                    ip = socket.inetAddress.hostName, value = heartBeat.value + 1,
-                    time = System.currentTimeMillis()
-                )
+                val respondHeartBeat =
+                    HeartBeat(
+                        ip = socket.inetAddress.hostName, value = heartBeat.value + 1,
+                        time = System.currentTimeMillis(),
+                    )
 
                 sendToClient(mGson.toJson(respondHeartBeat))
 

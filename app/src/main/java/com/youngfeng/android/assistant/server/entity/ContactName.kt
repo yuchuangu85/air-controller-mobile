@@ -8,5 +8,5 @@ data class ContactName(
     val displayName: String?,
     val givenName: String?,
     val middleName: String?,
-    val familyName: String?
+    val familyName: String?,
 )

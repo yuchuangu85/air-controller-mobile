@@ -5,7 +5,6 @@ import java.lang.Exception
 import java.lang.reflect.Type
 
 class JsonUtils private constructor() {
-
     companion object {
         @JvmStatic
         fun <T> parseJson(json: String, type: Type): T? {

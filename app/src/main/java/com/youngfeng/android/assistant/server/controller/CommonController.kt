@@ -56,33 +56,36 @@ class CommonController {
         var index = 0
         packages.forEach {
             index++
-            val appName = packageManager.getApplicationLabel(
-                packageManager.getApplicationInfo(
-                    it.packageName,
-                    0
-                )
-            ).toString()
+            val appName =
+                packageManager.getApplicationLabel(
+                    packageManager.getApplicationInfo(
+                        it.packageName,
+                        0,
+                    ),
+                ).toString()
             val packageInfo = packageManager.getPackageInfo(it.packageName, 0)
             val versionName = packageInfo.versionName ?: "Unknown"
-            val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode
-            } else {
-                packageInfo.versionCode.toLong()
-            }
+            val versionCode =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    packageInfo.longVersionCode
+                } else {
+                    packageInfo.versionCode.toLong()
+                }
             val packageName = it.packageName
             val appFile = File(it.publicSourceDir)
             val size = appFile.length()
             val enable = it.enabled
 
-            val app = InstalledAppEntity(
-                isSystemApp = (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
-                name = appName,
-                versionName = versionName,
-                versionCode = versionCode,
-                packageName = packageName,
-                size = size,
-                enable = enable
-            )
+            val app =
+                InstalledAppEntity(
+                    isSystemApp = (it.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
+                    name = appName,
+                    versionName = versionName,
+                    versionCode = versionCode,
+                    packageName = packageName,
+                    size = size,
+                    enable = enable,
+                )
             apps.add(app)
         }
 
@@ -94,7 +97,7 @@ class CommonController {
     fun installApp(
         httpRequest: HttpRequest,
         @RequestParam("bundle") bundle: MultipartFile,
-        @RequestParam("md5") md5: String
+        @RequestParam("md5") md5: String,
     ): HttpResponseEntity<Any> {
         val db = RoomDatabaseHolder.getRoomDatabase(mContext)
         val uploadFileRecordDao = db.uploadFileRecordDao()
@@ -111,14 +114,15 @@ class CommonController {
 
             CommonUtil.install(mContext, destFile)
 
-            val newUploadFileRecord = UploadFileRecord(
-                id = 0,
-                name = fileName,
-                path = destFile.absolutePath,
-                size = size,
-                uploadTime = uploadTime,
-                md5 = MD5Helper.md5(destFile)
-            )
+            val newUploadFileRecord =
+                UploadFileRecord(
+                    id = 0,
+                    name = fileName,
+                    path = destFile.absolutePath,
+                    size = size,
+                    uploadTime = uploadTime,
+                    md5 = MD5Helper.md5(destFile),
+                )
             uploadFileRecordDao.insert(newUploadFileRecord)
 
             return HttpResponseEntity.success()
@@ -138,7 +142,7 @@ class CommonController {
     fun tryToInstallFromCache(
         httpRequest: HttpRequest,
         @RequestParam("fileName") fileName: String,
-        @RequestParam("md5") md5: String
+        @RequestParam("md5") md5: String,
     ): HttpResponseEntity<Any> {
         val db = RoomDatabaseHolder.getRoomDatabase(mContext)
         val uploadFileRecords = db.uploadFileRecordDao().findWithMd5(md5)

@@ -8,7 +8,6 @@ import com.youngfeng.android.assistant.db.entity.ZipFileRecord
 
 @Dao
 interface ZipFileRecordDao {
-
     @Insert
     fun insert(zipFileRecord: ZipFileRecord)
 

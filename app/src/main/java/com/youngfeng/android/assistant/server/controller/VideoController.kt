@@ -111,7 +111,11 @@ class VideoController {
 
     @CrossOrigin
     @GetMapping("/item/{id}")
-    fun findById(request: HttpRequest, response: HttpResponse, @PathVariable("id") id: String): com.yanzhenjie.andserver.http.ResponseBody {
+    fun findById(
+        request: HttpRequest,
+        response: HttpResponse,
+        @PathVariable("id") id: String,
+    ): com.yanzhenjie.andserver.http.ResponseBody {
         val videoEntity = VideoUtil.findById(mContext, id)
 
         if (null != videoEntity) {
@@ -121,7 +125,7 @@ class VideoController {
             return RangeSupportResponseBody(
                 contentType = MediaType("video", videoFile.extension),
                 file = videoFile,
-                rangeHeader = rangeHeader
+                rangeHeader = rangeHeader,
             ).attachToResponse(response)
         } else {
             throw IllegalArgumentException("Video item is not exist, id: $id")
@@ -132,7 +136,7 @@ class VideoController {
     @PostMapping("/uploadVideos")
     fun uploadVideos(
         @RequestParam("videos") videos: Array<MultipartFile>,
-        @RequestParam("folder") folder: String?
+        @RequestParam("folder") folder: String?,
     ): HttpResponseEntity<Any> {
         if (!EasyPermissions.hasPermissions(
                 mContext,
@@ -143,22 +147,23 @@ class VideoController {
                 RequestPermissionsEvent(
                     arrayOf(
                         Permission.WriteExternalStorage,
-                    )
-                )
+                    ),
+                ),
             )
             return HttpResponseEntity.commonError(HttpError.LackOfNecessaryPermissions)
         }
 
         PathHelper.videoRootDir()?.let { videoRootDir ->
             videos.onEach { video ->
-                val file = if (folder.isNullOrEmpty() || folder == "null") {
-                    File(videoRootDir, "AirController/${video.filename}")
-                } else {
-                    File(folder, "${video.filename}")
-                }
+                val file =
+                    if (folder.isNullOrEmpty() || folder == "null") {
+                        File(videoRootDir, "AirController/${video.filename}")
+                    } else {
+                        File(folder, "${video.filename}")
+                    }
                 video.transferTo(file)
                 MediaScannerConnection.scanFile(
-                    mContext, arrayOf(file.path), null, null
+                    mContext, arrayOf(file.path), null, null,
                 )
             }
             return HttpResponseEntity.success()

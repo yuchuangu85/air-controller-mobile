@@ -6,7 +6,6 @@ import com.youngfeng.android.assistant.server.entity.AudioEntity
 import java.io.File
 
 class AudioItemBody(audio: AudioEntity) : FileBody(File(audio.path)) {
-
     override fun contentType(): MediaType {
         return MediaType.parseMediaType("audio/mpeg")
     }

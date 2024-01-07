@@ -7,5 +7,5 @@ class DeleteFileRequest(
      * 注意：这里可能是文件或文件夹
      */
     val file: String,
-    val isDir: Boolean
+    val isDir: Boolean,
 ) : BaseRequest()

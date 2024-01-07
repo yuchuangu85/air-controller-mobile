@@ -7,5 +7,5 @@ data class InstalledAppEntity(
     val versionCode: Long,
     val packageName: String,
     val size: Long,
-    val enable: Boolean
+    val enable: Boolean,
 )

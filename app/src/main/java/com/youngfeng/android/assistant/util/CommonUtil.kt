@@ -12,7 +12,6 @@ import com.youngfeng.android.assistant.server.entity.ApkInfo
 import java.io.File
 
 object CommonUtil {
-
     fun getBatteryLevel(context: Context): Int {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -31,11 +30,12 @@ object CommonUtil {
 
     fun install(context: Context, apkFile: File) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val uri = FileProvider.getUriForFile(
-                context,
-                context.applicationContext.packageName.toString() + ".provider",
-                apkFile
-            )
+            val uri =
+                FileProvider.getUriForFile(
+                    context,
+                    context.applicationContext.packageName.toString() + ".provider",
+                    apkFile,
+                )
             val intent = Intent(Intent.ACTION_VIEW)
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -45,7 +45,7 @@ object CommonUtil {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(
                 Uri.fromFile(apkFile),
-                "application/vnd.android.package-archive"
+                "application/vnd.android.package-archive",
             )
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
