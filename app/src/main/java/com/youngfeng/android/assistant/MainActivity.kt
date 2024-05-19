@@ -235,12 +235,12 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private fun updatePermissionsStatus() {
         val permissions =
             mutableListOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.GET_ACCOUNTS,
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.WRITE_CONTACTS,
             )
+
+        addMediaPermissions(permissions)
 
         EasyPermissions.hasPermissions(this, *permissions.toTypedArray()).apply {
             mViewModel.updateAllPermissionsGranted(this)
@@ -251,12 +251,12 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private fun requestPermissions(includeAppNeeded: Boolean) {
         val perms =
             mutableListOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.GET_ACCOUNTS,
                 Manifest.permission.READ_CONTACTS,
                 Manifest.permission.WRITE_CONTACTS,
             )
+
+        addMediaPermissions(perms)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             perms.add(
@@ -277,6 +277,30 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 .setNegativeButtonText(R.string.rationale_ask_cancel)
                 .build(),
         )
+    }
+
+    private fun addMediaPermissions(perms: MutableList<String>) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            perms.add(
+                Manifest.permission.READ_MEDIA_IMAGES
+            )
+            perms.add(
+                Manifest.permission.READ_MEDIA_AUDIO
+            )
+            perms.add(
+                Manifest.permission.READ_MEDIA_VIDEO
+            )
+            perms.add(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        } else {
+            perms.add(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+            perms.add(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
